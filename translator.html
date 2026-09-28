@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPN Trinh Hg – Translator</title>
+<style>
+:root{--bg:#0b0f19;--card:#131a2a;--bd:#232d45;--tx:#e2e8f0;--mut:#8896b3;--acc:#6366f1;--new:#22c55e;--chg:#f59e0b;--rem:#ef4444;--unc:#64748b;}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:24px;font-size:14px;}
+h1{font-size:20px;margin:0 0 4px;} h2{font-size:15px;margin:24px 0 10px;color:#c7d2fe;}
+.sub{color:var(--mut);margin-bottom:20px;font-size:12.5px;}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:18px;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text],input[type=password],input[type=file]{background:#0c1120;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:9px 12px;font-size:13px;}
+input[type=text]{min-width:280px;}
+button{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;transition:.15s;}
+button:hover{filter:brightness(1.12);}
+button:disabled{opacity:.4;cursor:not-allowed;}
+button.gray{background:#2a3350;}
+button.danger{background:var(--rem);}
+button.ghost{background:transparent;border:1px solid var(--bd);}
+.status{font-size:12.5px;color:var(--mut);margin-top:8px;min-height:16px;}
+.status.err{color:#fca5a5;} .status.ok{color:#86efac;}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.3px;}
+.b-new{background:rgba(34,197,94,.15);color:var(--new);} .b-chg{background:rgba(245,158,11,.15);color:var(--chg);}
+.b-rem{background:rgba(239,68,68,.15);color:var(--rem);} .b-unc{background:rgba(100,116,139,.15);color:var(--unc);}
+.counts{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;}
+.count{background:#0c1120;border:1px solid var(--bd);border-radius:10px;padding:8px 14px;font-size:12.5px;}
+.count b{font-size:16px;display:block;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px;}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--bd);vertical-align:top;}
+th{color:var(--mut);font-weight:700;font-size:11px;text-transform:uppercase;}
+td.key{font-family:monospace;color:#a5b4fc;white-space:nowrap;}
+td.vi{max-width:360px;} .old{color:#f87171;text-decoration:line-through;opacity:.7;font-size:11.5px;}
+textarea{width:100%;background:#0c1120;border:1px solid var(--bd);color:var(--tx);border-radius:6px;padding:6px 8px;font-size:12.5px;min-height:38px;resize:vertical;font-family:inherit;}
+.hint{color:#fca5a5;font-size:10.5px;}
+details{margin-top:4px;} summary{cursor:pointer;font-weight:700;color:#c7d2fe;padding:4px 0;}
+.hidden{display:none!important;}
+.section-actions{display:flex;gap:8px;margin:14px 0 4px;flex-wrap:wrap;}
+.pill{font-size:11px;color:var(--mut);}
+</style>
+</head>
+<body>
+<h1>🌐 VPN Trinh Hg — Translator</h1>
+<div class="sub">Upload index.html mới → tool tự tách <code>i18n.vi</code> → so với bản đã publish → chỉ dịch phần NEW/CHANGED bằng Gemini → publish vào Cloudflare KV.</div>
+
+<div class="card">
+  <div class="row">
+    <input type="text" id="workerUrl" placeholder="https://vpntrinhhg3worker.lucastanora.workers.dev">
+    <input type="password" id="pw" placeholder="Mật khẩu Admin">
+    <button id="btnLogin" onclick="doLogin()">Đăng nhập</button>
+    <span id="loginState" class="pill">Chưa đăng nhập</span>
+  </div>
+  <div class="status" id="loginStatus"></div>
+</div>
+
+<div class="card">
+  <div class="row">
+    <input type="file" id="fileInput" accept=".html">
+    <button class="gray" onclick="loadOldData()" id="btnLoadOld" disabled>1) Tải dữ liệu cũ từ KV</button>
+    <button onclick="doScan()" id="btnScan" disabled>2) Quét file &amp; So sánh</button>
+  </div>
+  <div class="status" id="scanStatus"></div>
+</div>
+
+<div id="diffArea" class="hidden">
+  <div class="counts">
+    <div class="count"><b id="cNew">0</b>New</div>
+    <div class="count"><b id="cChg">0</b>Changed</div>
+    <div class="count"><b id="cUnc">0</b>Unchanged</div>
+    <div class="count"><b id="cRem">0</b>Removed</div>
+  </div>
+
+  <div class="card">
+    <h2>🟢 NEW <span class="pill">— chuỗi mới, bỏ tick nếu không muốn dịch (ID, URL, mã kỹ thuật...)</span></h2>
+    <table id="tblNew"><thead><tr><th></th><th>Key</th><th>Tiếng Việt</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>🟠 CHANGED <span class="pill">— nội dung VI đã sửa, key giữ nguyên</span></h2>
+    <table id="tblChg"><thead><tr><th></th><th>Key</th><th>Tiếng Việt (cũ → mới)</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <div class="card">
+    <details><summary>⚪ UNCHANGED (<span id="cUnc2">0</span>) — giữ nguyên bản dịch cũ, không gọi Gemini</summary>
+      <table id="tblUnc"><thead><tr><th>Key</th><th>Tiếng Việt</th></tr></thead><tbody></tbody></table>
+    </details>
+  </div>
+
+  <div class="card" id="cardRemoved" style="display:none">
+    <h2>🔴 REMOVED <span class="pill">— key không còn trong index.html mới</span></h2>
+    <table id="tblRem"><thead><tr><th>Key</th><th>Tiếng Việt cũ</th><th>Hành động</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <div class="section-actions">
+    <button onclick="runGemini()" id="btnGemini">3) Dịch NEW + CHANGED bằng Gemini</button>
+    <span class="pill" id="geminiStatus"></span>
+  </div>
+
+  <div class="card hidden" id="previewCard">
+    <h2>✏️ Xem trước &amp; chỉnh sửa bản dịch (EN / ZH)</h2>
+    <table id="tblPreview"><thead><tr><th>Key</th><th>VI</th><th>EN</th><th>ZH</th></tr></thead><tbody></tbody></table>
+    <div class="section-actions">
+      <button onclick="doPublish()" id="btnPublish">4) Publish lên Cloudflare KV</button>
+      <span class="pill" id="publishStatus"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let state={token:null,workerUrl:'',viNew:null,oldSourceStrings:{},oldTr:{vi:{},en:{},zh:{}},diff:null,geminiResults:{},removedDecision:{}};
+
+try{ $('workerUrl').value = localStorage.getItem('vpn_tr_worker')||'https://vpntrinhhg3worker.lucastanora.workers.dev'; }catch(e){}
+
+function setStatus(id,msg,cls){ const el=$(id); el.textContent=msg||''; el.className='status'+(cls?' '+cls:''); }
+
+async function api(path,opts){
+  opts=opts||{};
+  const headers=Object.assign({'Content-Type':'application/json'}, opts.headers||{});
+  if(state.token) headers['Authorization']='Bearer '+state.token;
+  const r=await fetch(state.workerUrl+path,{method:opts.method||'GET',headers,body:opts.body?JSON.stringify(opts.body):undefined});
+  let d=null; try{d=await r.json();}catch(e){}
+  return {ok:r.ok,status:r.status,data:d};
+}
+
+async function doLogin(){
+  state.workerUrl = $('workerUrl').value.trim().replace(/\/$/,'');
+  if(!state.workerUrl){ setStatus('loginStatus','Vui lòng nhập Worker URL','err'); return; }
+  try{ localStorage.setItem('vpn_tr_worker', state.workerUrl); }catch(e){}
+  const pw=$('pw').value;
+  if(!pw){ setStatus('loginStatus','Vui lòng nhập mật khẩu','err'); return; }
+  setStatus('loginStatus','Đang đăng nhập...');
+  const r=await api('/api/admin/login',{method:'POST',body:{password:pw}});
+  if(!r.ok || !r.data || !r.data.ok){ setStatus('loginStatus',(r.data&&r.data.error)||'Sai mật khẩu hoặc lỗi kết nối','err'); return; }
+  state.token=r.data.token;
+  $('loginState').textContent='✅ Đã đăng nhập';
+  $('btnLoadOld').disabled=false;
+  setStatus('loginStatus','Đăng nhập thành công.','ok');
+}
+
+async function loadOldData(){
+  setStatus('scanStatus','Đang tải dữ liệu cũ từ KV...');
+  const [rs,rt]=await Promise.all([api('/api/admin/translations/source'),api('/api/admin/translations/current')]);
+  if(!rs.ok||!rt.ok){ setStatus('scanStatus','Không tải được dữ liệu cũ (có thể chưa publish lần nào — vẫn tiếp tục được).','err'); state.oldSourceStrings={}; state.oldTr={vi:{},en:{},zh:{}}; }
+  else{
+    state.oldSourceStrings=(rs.data&&rs.data.strings)||{};
+    state.oldTr={vi:(rt.data&&rt.data.vi)||{},en:(rt.data&&rt.data.en)||{},zh:(rt.data&&rt.data.zh)||{}};
+    setStatus('scanStatus','Đã tải dữ liệu cũ: '+Object.keys(state.oldSourceStrings).length+' key.','ok');
+  }
+  $('btnScan').disabled=false;
+}
+
+function extractVi(text){
+  const idx=text.indexOf('const i18n');
+  if(idx<0) throw new Error('Không tìm thấy "const i18n" trong file');
+  const viIdx=text.indexOf('vi:{',idx);
+  if(viIdx<0) throw new Error('Không tìm thấy "vi:{" trong khối i18n');
+  const start=text.indexOf('{',viIdx);
+  let depth=0,i=start,inStr=null,esc=false;
+  for(;i<text.length;i++){
+    const c=text[i];
+    if(inStr){
+      if(esc){esc=false;}
+      else if(c==='\\'){esc=true;}
+      else if(c===inStr){inStr=null;}
+      continue;
+    }
+    if(c==='"'||c==="'"||c==='`'){inStr=c;continue;}
+    if(c==='{')depth++;
+    else if(c==='}'){depth--; if(depth===0){i++;break;}}
+  }
+  const objText=text.slice(start,i);
+  let obj;
+  try{ obj=Function('"use strict";return ('+objText+')')(); }
+  catch(e){ throw new Error('Lỗi parse object vi: '+e.message); }
+  const out={};
+  for(const [k,v] of Object.entries(obj)) if(typeof v==='string') out[k]=v;
+  return out;
+}
+
+function looksNonUi(vi){
+  const s=String(vi||'').trim();
+  if(!s) return true;
+  if(/^https?:\/\//i.test(s)) return true;
+  if(/^\/api\//.test(s)) return true;
+  if(/^[A-Z0-9_\-]{4,}$/.test(s) && !/\s/.test(s)) return true;
+  if(/^[a-z0-9_]+$/i.test(s) && !/\s/.test(s) && s.length<=24) return true;
+  if(/^\d+([.,]\d+)?$/.test(s)) return true;
+  return false;
+}
+
+function doScan(){
+  const f=$('fileInput').files[0];
+  if(!f){ setStatus('scanStatus','Vui lòng chọn file index.html','err'); return; }
+  const reader=new FileReader();
+  reader.onload=function(){
+    try{
+      const vi=extractVi(reader.result);
+      state.viNew=vi;
+      computeDiff();
+      renderDiff();
+      setStatus('scanStatus','Quét xong: '+Object.keys(vi).length+' key trong i18n.vi.','ok');
+      $('diffArea').classList.remove('hidden');
+    }catch(e){ setStatus('scanStatus','Lỗi: '+e.message,'err'); }
+  };
+  reader.readAsText(f,'utf-8');
+}
+
+function computeDiff(){
+  const oldVi={}; for(const [k,v] of Object.entries(state.oldSourceStrings)) oldVi[k]=v;
+  const d={new:[],changed:[],unchanged:[],removed:[]};
+  for(const [k,v] of Object.entries(state.viNew)){
+    if(!(k in oldVi)) d.new.push({key:k,vi:v});
+    else if(oldVi[k]!==v) d.changed.push({key:k,vi:v,viOld:oldVi[k]});
+    else d.unchanged.push({key:k,vi:v});
+  }
+  for(const k of Object.keys(oldVi)) if(!(k in state.viNew)) d.removed.push({key:k,vi:oldVi[k]});
+  state.diff=d;
+}
+
+function renderDiff(){
+  const d=state.diff;
+  $('cNew').textContent=d.new.length; $('cChg').textContent=d.changed.length;
+  $('cUnc').textContent=d.unchanged.length; $('cUnc2').textContent=d.unchanged.length;
+  $('cRem').textContent=d.removed.length;
+
+  const tbNew=$('tblNew').querySelector('tbody'); tbNew.innerHTML='';
+  d.new.forEach(it=>{
+    const flag=looksNonUi(it.vi);
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td><input type="checkbox" data-cat="new" data-key="'+esc(it.key)+'" '+(flag?'':'checked')+'></td>'+
+      '<td class="key">'+esc(it.key)+'</td><td class="vi">'+esc(it.vi)+(flag?'<div class="hint">⚠ có vẻ không phải văn bản giao diện</div>':'')+'</td>';
+    tbNew.appendChild(tr);
+  });
+
+  const tbChg=$('tblChg').querySelector('tbody'); tbChg.innerHTML='';
+  d.changed.forEach(it=>{
+    const flag=looksNonUi(it.vi);
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td><input type="checkbox" data-cat="changed" data-key="'+esc(it.key)+'" '+(flag?'':'checked')+'></td>'+
+      '<td class="key">'+esc(it.key)+'</td><td class="vi"><div class="old">'+esc(it.viOld)+'</div>'+esc(it.vi)+(flag?'<div class="hint">⚠ có vẻ không phải văn bản giao diện</div>':'')+'</td>';
+    tbChg.appendChild(tr);
+  });
+
+  const tbUnc=$('tblUnc').querySelector('tbody'); tbUnc.innerHTML='';
+  d.unchanged.forEach(it=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td class="key">'+esc(it.key)+'</td><td class="vi">'+esc(it.vi)+'</td>';
+    tbUnc.appendChild(tr);
+  });
+
+  $('cardRemoved').style.display = d.removed.length? '' : 'none';
+  const tbRem=$('tblRem').querySelector('tbody'); tbRem.innerHTML='';
+  d.removed.forEach(it=>{
+    state.removedDecision[it.key]='keep';
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td class="key">'+esc(it.key)+'</td><td class="vi">'+esc(it.vi)+'</td>'+
+      '<td><select data-rem-key="'+esc(it.key)+'" onchange="state.removedDecision[this.dataset.remKey]=this.value">'+
+      '<option value="keep" selected>Giữ lại (không hiện nhưng vẫn lưu trong KV)</option>'+
+      '<option value="delete">Xóa hẳn khỏi KV</option></select></td>';
+    tbRem.appendChild(tr);
+  });
+}
+
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function getCheckedItems(cat,list){
+  const boxes=document.querySelectorAll('input[data-cat="'+cat+'"]');
+  const on=new Set(); boxes.forEach(b=>{ if(b.checked) on.add(b.dataset.key); });
+  return list.filter(it=>on.has(it.key));
+}
+
+async function runGemini(){
+  const items=[...getCheckedItems('new',state.diff.new),...getCheckedItems('changed',state.diff.changed)]
+    .map(it=>({key:it.key,vi:it.vi}));
+  if(!items.length){ $('geminiStatus').textContent='Không có mục nào được chọn để dịch.'; return; }
+  $('btnGemini').disabled=true;
+  const CH=30; let done=0; state.geminiResults={};
+  for(let i=0;i<items.length;i+=CH){
+    const chunk=items.slice(i,i+CH);
+    $('geminiStatus').textContent='Đang dịch '+(done)+'/'+items.length+'...';
+    const r=await api('/api/admin/translations/gemini',{method:'POST',body:{items:chunk}});
+    if(r.ok && r.data && r.data.ok){ Object.assign(state.geminiResults,r.data.results); done+=chunk.length; }
+    else{ $('geminiStatus').textContent='Lỗi Gemini: '+((r.data&&r.data.error)||r.status); $('btnGemini').disabled=false; return; }
+  }
+  $('geminiStatus').textContent='Đã dịch xong '+Object.keys(state.geminiResults).length+'/'+items.length+' key.';
+  $('btnGemini').disabled=false;
+  renderPreview(items);
+}
+
+function renderPreview(translatedItems){
+  $('previewCard').classList.remove('hidden');
+  const tb=$('tblPreview').querySelector('tbody'); tb.innerHTML='';
+  translatedItems.forEach(it=>{
+    const g=state.geminiResults[it.key]||{en:'',zh:''};
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td class="key">'+esc(it.key)+'</td><td class="vi">'+esc(it.vi)+'</td>'+
+      '<td><textarea data-en="'+esc(it.key)+'">'+esc(g.en)+'</textarea></td>'+
+      '<td><textarea data-zh="'+esc(it.key)+'">'+esc(g.zh)+'</textarea></td>';
+    tb.appendChild(tr);
+  });
+}
+
+function collectEditedResults(){
+  document.querySelectorAll('textarea[data-en]').forEach(t=>{
+    const k=t.dataset.en; state.geminiResults[k]=state.geminiResults[k]||{en:'',zh:''}; state.geminiResults[k].en=t.value;
+  });
+  document.querySelectorAll('textarea[data-zh]').forEach(t=>{
+    const k=t.dataset.zh; state.geminiResults[k]=state.geminiResults[k]||{en:'',zh:''}; state.geminiResults[k].zh=t.value;
+  });
+}
+
+async function doPublish(){
+  collectEditedResults();
+  const finalVi={}, finalEn={}, finalZh={};
+  for(const [k,v] of Object.entries(state.viNew)){
+    finalVi[k]=v;
+    if(state.geminiResults[k] && (state.geminiResults[k].en || state.geminiResults[k].zh)){
+      finalEn[k]=state.geminiResults[k].en || v;
+      finalZh[k]=state.geminiResults[k].zh || v;
+    } else if(state.oldTr.vi && k in state.oldTr.vi){
+      finalEn[k]=state.oldTr.en[k] ?? v;
+      finalZh[k]=state.oldTr.zh[k] ?? v;
+    } else {
+      finalEn[k]=v; finalZh[k]=v; // chưa dịch -> tạm dùng VI, không chặn publish
+    }
+  }
+  for(const it of state.diff.removed){
+    if(state.removedDecision[it.key]==='keep'){
+      finalVi[it.key]=it.vi;
+      finalEn[it.key]=state.oldTr.en[it.key] ?? it.vi;
+      finalZh[it.key]=state.oldTr.zh[it.key] ?? it.vi;
+    }
+  }
+  $('publishStatus').textContent='Đang publish...';
+  $('btnPublish').disabled=true;
+  const r=await api('/api/admin/translations/publish',{method:'POST',body:{sourceVi:finalVi,translations:{vi:finalVi,en:finalEn,zh:finalZh}}});
+  $('btnPublish').disabled=false;
+  if(r.ok && r.data && r.data.ok){
+    $('publishStatus').textContent='✅ Publish thành công (v'+r.data.version+'). Giờ hãy deploy index.html vừa upload lên Cloudflare Pages.';
+  } else {
+    $('publishStatus').textContent='❌ Lỗi publish: '+((r.data&&r.data.error)||r.status);
+  }
+}
+</script>
+</body>
+</html>
