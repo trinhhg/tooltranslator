@@ -293,7 +293,7 @@ async function runGemini(){
     
     while(retries > 0 && !success) {
       // ĐỔI "/api/admin/translations/groq" DƯỚI ĐÂY NẾU WORKER BẠN DÙNG ĐƯỜNG DẪN ĐÓ
-      const r = await api('/api/admin/translations/gemini', {method:'POST',body:{items:chunk}});
+      const r = await api('/api/admin/translations/groq', {method:'POST',body:{items:chunk}});
       
       if(r.ok && r.data && r.data.ok){ 
         Object.assign(state.geminiResults, r.data.results); 
