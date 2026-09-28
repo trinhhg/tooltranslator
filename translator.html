@@ -272,21 +272,63 @@ function getCheckedItems(cat,list){
   return list.filter(it=>on.has(it.key));
 }
 
+// Hàm helper hỗ trợ sleep
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
 async function runGemini(){
   const items=[...getCheckedItems('new',state.diff.new),...getCheckedItems('changed',state.diff.changed)]
-    .map(it=>({key:it.key,vi:it.vi}));
+   .map(it=>({key:it.key,vi:it.vi}));
   if(!items.length){ $('geminiStatus').textContent='Không có mục nào được chọn để dịch.'; return; }
   $('btnGemini').disabled=true;
-  const CH=30; let done=0; state.geminiResults={};
-  for(let i=0;i<items.length;i+=CH){
-    const chunk=items.slice(i,i+CH);
-    $('geminiStatus').textContent='Đang dịch '+(done)+'/'+items.length+'...';
-    const r=await api('/api/admin/translations/gemini',{method:'POST',body:{items:chunk}});
-    if(r.ok && r.data && r.data.ok){ Object.assign(state.geminiResults,r.data.results); done+=chunk.length; }
-    else{ $('geminiStatus').textContent='Lỗi Gemini: '+((r.data&&r.data.error)||r.status); $('btnGemini').disabled=false; return; }
+  
+  // Tối ưu Chunk Size nhỏ lại để tránh vọt Token Per Minute (TPM)
+  const CH=20; let done=0; state.geminiResults={};
+  
+  for(let i=0; i<items.length; i+=CH){
+    const chunk = items.slice(i,i+CH);
+    $('geminiStatus').textContent = 'Đang dịch '+(done)+'/'+items.length+'...';
+    
+    let success = false;
+    let retries = 3; // Thử lại tối đa 3 lần nếu dính lỗi 429
+    
+    while(retries > 0 && !success) {
+      // ĐỔI "/api/admin/translations/groq" DƯỚI ĐÂY NẾU WORKER BẠN DÙNG ĐƯỜNG DẪN ĐÓ
+      const r = await api('/api/admin/translations/gemini', {method:'POST',body:{items:chunk}});
+      
+      if(r.ok && r.data && r.data.ok){ 
+        Object.assign(state.geminiResults, r.data.results); 
+        done += chunk.length; 
+        success = true;
+      } else { 
+        // Bắt lỗi 429 (Too Many Requests) của Groq/OpenAI
+        const errMsg = (r.data && r.data.error) || String(r.status);
+        if (errMsg.includes('429') || r.status === 429 || r.status === 502) {
+          retries--;
+          if (retries > 0) {
+            $('geminiStatus').textContent = `Nghẽn API (Lỗi 429). Tạm dừng 15s để né rate limit... Thử lại còn ${retries} lần`;
+            await sleep(15000); // Ngủ 15 giây rồi thử lại cái chunk này
+          } else {
+            $('geminiStatus').textContent = 'Lỗi API liên tục: ' + errMsg; 
+            $('btnGemini').disabled = false; 
+            return;
+          }
+        } else {
+          // Lỗi khác (401, 500...) thì dừng luôn
+          $('geminiStatus').textContent = 'Lỗi API: ' + errMsg; 
+          $('btnGemini').disabled = false; 
+          return; 
+        }
+      }
+    }
+    
+    // Ngủ 2 giây giữa các chunk để giãn cách Token Per Minute (TPM)
+    if (i + CH < items.length) {
+      await sleep(2000); 
+    }
   }
-  $('geminiStatus').textContent='Đã dịch xong '+Object.keys(state.geminiResults).length+'/'+items.length+' key.';
-  $('btnGemini').disabled=false;
+  
+  $('geminiStatus').textContent = 'Đã dịch xong '+Object.keys(state.geminiResults).length+'/'+items.length+' key.';
+  $('btnGemini').disabled = false;
   renderPreview(items);
 }
 
