@@ -432,8 +432,30 @@ td textarea {
   
   <div class="row" style="justify-content:space-between;">
     <div class="stat-group" id="stats"></div>
-    <div class="row" style="margin:0;">
-      <button class="ok" onclick="exportTrans()">⬇ Xuất translations.json (VI + EN + ZH)</button>
+    <!-- BLOCK 2 NÚT XUẤT TRANS -->
+<div class="row" style="margin:0; gap:8px;">
+  <!-- Nút 1: Tải file JSON về máy -->
+  <button class="ok" onclick="exportTrans()" title="Tải file translations.json về máy tính">
+    ⬇ Tải file translations.json
+  </button>
+  
+  <!-- Nút 2: Copy trực tiếp JSON vào Clipboard để dán vào Cloudflare KV -->
+  <button class="g" style="background:#4f46e5; color:#fff;" onclick="copyTrans()" title="Sao chép nội dung JSON để dán thẳng vào Cloudflare KV">
+    📋 Copy translations.json
+  </button>
+</div>
+      <!-- CỤM 2 NÚT XUẤT TRANSLATIONS -->
+<div style="display:inline-flex; gap:8px; align-items:center;">
+  <!-- Nút 1: Tải file về máy -->
+  <button class="ok" onclick="exportTrans()" title="Tải file .json về máy">
+    ⬇ Tải file translations.json
+  </button>
+  
+  <!-- Nút 2: Copy trực tiếp vào bộ nhớ để dán vào Cloudflare KV -->
+  <button class="g" style="background:#4f46e5; color:#fff;" onclick="copyTrans()" title="Copy JSON để dán thẳng vào Cloudflare KV">
+    📋 Copy translations.json
+  </button>
+</div>
     </div>
   </div>
 
