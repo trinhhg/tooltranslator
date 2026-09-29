@@ -41,7 +41,6 @@ body {
   line-height: 1.5;
 }
 
-/* TOP STICKY BAR */
 #top {
   position: sticky;
   top: 0;
@@ -94,7 +93,6 @@ body {
   transition: width 0.3s ease;
 }
 
-/* TYPOGRAPHY & CARDS */
 h1 {
   font-size: 22px;
   font-weight: 700;
@@ -122,7 +120,6 @@ h2 {
   box-shadow: var(--shadow-sm);
 }
 
-/* FORMS & INPUTS */
 .row {
   display: flex;
   gap: 12px;
@@ -156,7 +153,6 @@ input[type=number] { width: 110px; }
   border: 1px solid #cbd5e1;
 }
 
-/* BUTTONS */
 button {
   display: inline-flex;
   align-items: center;
@@ -182,10 +178,7 @@ button.r { background: var(--danger); color: #fff; }
 button.r:hover { background: #b91c1c; }
 button.ok { background: var(--success); color: #fff; }
 button.ok:hover { background: #15803d; }
-button.outline { background: transparent; color: var(--primary); border: 1px solid #c7d2fe; }
-button.outline:hover { background: var(--primary-light); }
 
-/* TABS */
 .tab-group {
   display: inline-flex;
   background: var(--surface-alt);
@@ -225,7 +218,6 @@ label.s {
   margin: 6px 0;
 }
 
-/* LOG WINDOW */
 #log {
   background: #0f172a;
   color: #e2e8f0;
@@ -241,7 +233,6 @@ label.s {
 #log .err { color: #f87171; }
 #log .info { color: #60a5fa; }
 
-/* BẢNG DỊCH — MỞ RỘNG TỰ NHIÊN, KHÔNG KHUNG CUỘN */
 .table-container {
   width: 100%;
   margin-top: 14px;
@@ -249,7 +240,7 @@ label.s {
   border-radius: 10px;
   background: var(--surface);
   box-shadow: var(--shadow-sm);
-  overflow: visible; /* Không cuộn ép khung */
+  overflow: visible;
 }
 table {
   width: 100%;
@@ -258,7 +249,7 @@ table {
 }
 th {
   position: sticky;
-  top: 72px; /* Dính ngay dưới top header bar */
+  top: 72px;
   z-index: 10;
   background: #f8fafc;
   color: var(--tx-sec);
@@ -275,9 +266,7 @@ td {
   border-bottom: 1px solid #f1f5f9;
   vertical-align: top;
 }
-tr:hover td {
-  background: #fafafa;
-}
+tr:hover td { background: #fafafa; }
 td.vi {
   max-width: 320px;
   white-space: pre-wrap;
@@ -294,7 +283,6 @@ td textarea {
   line-height: 1.45;
 }
 
-/* BADGES */
 .b {
   display: inline-flex;
   align-items: center;
@@ -333,7 +321,6 @@ td textarea {
 </head>
 <body>
 
-<!-- TOP STICKY BAR -->
 <div id="top">
   <div class="r">
     <span id="tClock">00:00</span>
@@ -370,7 +357,6 @@ td textarea {
     <button class="g" onclick="exportSource()">⬇ Xuất translations_source_vi.json</button>
   </div>
 
-  <!-- NẠP BẢN DỊCH CŨ -->
   <div style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--bd);">
     <label class="s" style="font-weight:600;margin-bottom:8px;">
       Nạp translations.json cũ (tiết kiệm token Groq, chỉ dịch phần chuỗi mới):
@@ -432,30 +418,13 @@ td textarea {
   
   <div class="row" style="justify-content:space-between;">
     <div class="stat-group" id="stats"></div>
-    <!-- BLOCK 2 NÚT XUẤT TRANS -->
-<div class="row" style="margin:0; gap:8px;">
-  <!-- Nút 1: Tải file JSON về máy -->
-  <button class="ok" onclick="exportTrans()" title="Tải file translations.json về máy tính">
-    ⬇ Tải file translations.json
-  </button>
-  
-  <!-- Nút 2: Copy trực tiếp JSON vào Clipboard để dán vào Cloudflare KV -->
-  <button class="g" style="background:#4f46e5; color:#fff;" onclick="copyTrans()" title="Sao chép nội dung JSON để dán thẳng vào Cloudflare KV">
-    📋 Copy translations.json
-  </button>
-</div>
-      <!-- CỤM 2 NÚT XUẤT TRANSLATIONS -->
-<div style="display:inline-flex; gap:8px; align-items:center;">
-  <!-- Nút 1: Tải file về máy -->
-  <button class="ok" onclick="exportTrans()" title="Tải file .json về máy">
-    ⬇ Tải file translations.json
-  </button>
-  
-  <!-- Nút 2: Copy trực tiếp vào bộ nhớ để dán vào Cloudflare KV -->
-  <button class="g" style="background:#4f46e5; color:#fff;" onclick="copyTrans()" title="Copy JSON để dán thẳng vào Cloudflare KV">
-    📋 Copy translations.json
-  </button>
-</div>
+    <div class="row" style="margin:0; gap:8px;">
+      <button class="ok" onclick="exportTrans()" title="Tải file translations.json về máy tính">
+        ⬇ Tải file translations.json
+      </button>
+      <button class="g" style="background:#4f46e5; color:#fff;" onclick="copyTrans()" title="Sao chép JSON để dán thẳng vào Cloudflare KV">
+        📋 Copy translations.json
+      </button>
     </div>
   </div>
 
@@ -473,10 +442,9 @@ td textarea {
 
   <div class="hint">
     <b>Hướng dẫn:</b> Đánh dấu tích vào ô cột ngoài cùng bên trái để <b>BỎ QUA</b> chuỗi không muốn dịch.
-    Các thẻ <code>[[1]]</code>, <code>[[2]]</code> và biến <code>{0}</code> được bảo lưu tự động. Bạn có thể tự chỉnh sửa trực tiếp nội dung tiếng Anh hoặc tiếng Trung trong bảng.
+    Các thẻ <code>[[1]]</code>, <code>[[2]]</code> và biến <code>{0}</code> được bảo lưu tự động.
   </div>
 
-  <!-- BẢNG DÀI TỰ NHIÊN, BỎ KHUNG CUỘN -->
   <div class="table-container">
     <table>
       <thead>
@@ -503,10 +471,16 @@ td textarea {
 <script>
 /* ===== I18N CORE v1 — ĐỒNG BỘ TUYỆT ĐỐI VỚI INDEX.HTML ===== */
 const VI_RE = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/;
-const hasVi = s => VI_RE.test(String(s).toLowerCase());
+
+// Thêm các từ khoá không dấu của web VPN để Scanner không bỏ sót
+const EXTRA_UI_TERMS = ['link subscription url', 'subscription url', 'copy link'];
+const hasVi = s => {
+  const str = String(s || '').toLowerCase().trim();
+  return VI_RE.test(str) || EXTRA_UI_TERMS.some(t => str.includes(t));
+};
+
 const normWs = s => String(s).replace(/\s+/g,' ').trim();
 
-// Băm MurmurHash3 53-bit đảm bảo không lệch khóa so với hệ thống hiện tại
 const h53 = str => {
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
   for (let i = 0, c; i < str.length; i++) {
@@ -522,9 +496,7 @@ const h53 = str => {
 };
 const keyOf = s => 't' + h53(s).toString(36);
 
-// Danh mục thuộc tính cần bóc tách
 const I_ATTRS = ['placeholder', 'title', 'alt', 'aria-label', 'data-tooltip', 'data-title', 'data-tip'];
-// ĐÃ BỎ OPTION KHỎI I_SKIP để quét được các mục trong thẻ <select>
 const I_SKIP = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'SELECT', 'SVG', 'CODE', 'PRE', 'HEAD', 'TEMPLATE', 'IFRAME']);
 const I_INLINE = new Set(['A', 'B', 'I', 'U', 'S', 'EM', 'STRONG', 'SPAN', 'SMALL', 'MARK', 'SUB', 'SUP', 'BR', 'FONT', 'ABBR', 'IMG']);
 const I_VOID = new Set(['BR', 'IMG']);
@@ -538,7 +510,6 @@ const openTag = c => {
   return I_VOID.has(tg(c)) ? s : s.slice(0, s.length - tg(c).length - 3);
 };
 
-/* Bảo toàn thẻ lồng nhau thành [[1]] [[2]] */
 function protectEl(el) {
   const parts = [], raw = [], kind = [], pair = {}, openOf = {};
   let n = 0;
@@ -590,7 +561,6 @@ function protectEl(el) {
   return { text: normWs(text), tags, lead: lead.join(''), trail: trail.join('') };
 }
 
-/* ===== SCANNER NÂNG CAO ===== */
 function unesc(s) {
   return s.replace(/\\(u\{([0-9a-fA-F]+)\}|u([0-9a-fA-F]{4})|x([0-9a-fA-F]{2})|\r?\n|[\s\S])/g, (m, a, b, c, d) => {
     if (b) return String.fromCodePoint(parseInt(b, 16));
@@ -664,13 +634,10 @@ function extractLiterals(src) {
 function collectDom(root, cb, kind) {
   for (const el of [root, ...root.querySelectorAll('*')]) {
     if (skipEl(el) || el.closest('[translate="no"]')) continue;
-    
-    // Quét thuộc tính văn bản
     for (const a of I_ATTRS) {
       const v = el.getAttribute(a);
       if (v && hasVi(v)) cb(v, 'attr');
     }
-    // Quét giá trị nút bấm <input type="button|submit|reset" value="...">
     if (el.tagName === 'INPUT' && /^(button|submit|reset)$/i.test(el.type || '')) {
       const v = el.value;
       if (v && hasVi(v)) cb(v, 'attr');
@@ -732,7 +699,6 @@ function scanSource(htmlText) {
 const $ = id => document.getElementById(id);
 const BUDGET_DEFAULT = 6000, DAILY = 200000;
 
-// Prompt hoàn thiện: Ép chặt chẽ JSON Object, tránh tuyệt đối lỗi 400
 const SYS = `You are a professional software translator. You translate UI strings of a Vietnamese VPN service into English and Simplified Chinese.
 You will receive a JSON object of numeric IDs mapping to Vietnamese strings.
 You MUST output ONLY a valid JSON object mapping the same numeric IDs to {"en": "...", "zh": "..."}.
@@ -763,14 +729,12 @@ const cfg = () => ({
   extra: +$('sExtra').value || 0
 });
 
-// Lưu cấu hình
 ['wUrl', 'wTok', 'sBudget', 'sReserve', 'sExtra'].forEach(id => {
   const v = localStorage.getItem('tr_' + id);
   if (v !== null) $(id).value = v;
   $(id).addEventListener('change', () => localStorage.setItem('tr_' + id, $(id).value));
 });
 
-/* TAB SWITCHER */
 function switchTab(group, type) {
   if (group === 'src') {
     $('srcTabUpload').style.display = type === 'upload' ? 'flex' : 'none';
@@ -784,7 +748,6 @@ function switchTab(group, type) {
   event.target.classList.add('active');
 }
 
-/* LOGGING */
 function log(msg, cls) {
   const d = document.createElement('div');
   d.className = cls || '';
@@ -803,7 +766,6 @@ setInterval(() => {
   $('tLive').textContent = liveMsg;
 }, 250);
 
-/* SCAN SOURCE */
 function doScan() {
   const txt = $('srcText').value.trim();
   if (!txt) { alert('Chưa có nội dung index.html! Hãy tải file hoặc dán mã HTML.'); return; }
@@ -816,7 +778,6 @@ function doScan() {
   log('Đã quét: ' + rows.length + ' chuỗi tiếng Việt (HTML ' + rows.filter(r => r.kinds.includes('html')).length + ', JS ' + rows.filter(r => r.kinds.includes('js')).length + ', thuộc tính ' + rows.filter(r => r.kinds.includes('attr')).length + ', có biến động ' + rows.filter(r => r.dyn).length + ')', 'ok');
 }
 
-/* XỬ LÝ NẠP BẢN DỊCH CŨ */
 function applyOld() {
   let n = 0;
   for (const r of rows) {
@@ -882,7 +843,6 @@ $('fileOld').addEventListener('change', e => {
   rd.readAsText(f, 'utf-8');
 });
 
-/* TABLE RENDERING */
 const H = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 function renderTable() {
@@ -965,7 +925,6 @@ function filterRows() {
 $('fSearch').addEventListener('input', filterRows);
 $('fState').addEventListener('change', filterRows);
 
-/* EXPORT */
 function dl(name, obj) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }));
@@ -983,17 +942,46 @@ function exportSource() {
   log('Đã xuất translations_source_vi.json (' + act.length + ' chuỗi)', 'ok');
 }
 
-function exportTrans() {
-  const ok = rows.filter(r => !r.skip && valid(r)), bad = rows.filter(r => !r.skip && !valid(r));
-  if (!ok.length) { alert('Chưa có bản dịch nào hợp lệ để xuất!'); return; }
-  if (bad.length && !confirm(bad.length + ' chuỗi chưa dịch hoặc bị lỗi marker sẽ KHÔNG được đưa vào file. Bạn có chắc muốn xuất?')) return;
+/* XUẤT VÀ SAO CHÉP TRANSLATIONS */
+function getValidTranslationsData() {
+  const ok = rows.filter(r => !r.skip && valid(r));
+  const bad = rows.filter(r => !r.skip && !valid(r));
+  if (!ok.length) { alert('Chưa có bản dịch nào hợp lệ để xuất!'); return null; }
+  if (bad.length && !confirm(bad.length + ' chuỗi chưa dịch hoặc bị lỗi marker sẽ KHÔNG được đưa vào file. Bạn có chắc muốn xuất?')) return null;
   const vi = {}, en = {}, zh = {};
   ok.forEach(r => { vi[r.key] = r.vi; en[r.key] = r.en; zh[r.key] = r.zh; });
-  dl('translations.json', { version: new Date().toISOString(), engine: 1, vi, en, zh });
-  log('Đã xuất translations.json thành công (' + ok.length + ' chuỗi × 3 ngôn ngữ).', 'ok');
+  return { version: new Date().toISOString(), engine: 1, vi, en, zh };
 }
 
-/* TOKEN ESTIMATION & BATCHING (ĐÃ FIX LỖI HTTP 400) */
+function exportTrans() {
+  const data = getValidTranslationsData();
+  if (!data) return;
+  dl('translations.json', data);
+  log('Đã tải xuống file translations.json (' + Object.keys(data.vi).length + ' chuỗi).', 'ok');
+}
+
+async function copyTrans() {
+  const data = getValidTranslationsData();
+  if (!data) return;
+  const jsonStr = JSON.stringify(data, null, 2);
+  try {
+    await navigator.clipboard.writeText(jsonStr);
+    alert('✔ Đã sao chép translations.json vào Clipboard!\nBạn chỉ cần sang Cloudflare KV và bấm Ctrl+V để dán.');
+    log('📋 Đã copy translations.json vào Clipboard (' + Object.keys(data.vi).length + ' chuỗi).', 'ok');
+  } catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = jsonStr;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('✔ Đã sao chép translations.json vào Clipboard!');
+    log('📋 Đã copy translations.json vào Clipboard.', 'ok');
+  }
+}
+
 const tokSys = Math.ceil(SYS.length / 3.2) + 20;
 const estIn = r => Math.ceil(r.vi.length / 2) + 12;
 const estOut = r => Math.ceil(24 + 1.2 * r.vi.length + 12 * ((r.vi.match(/\[\[\d+\]\]|\{\d+\}/g) || []).length));
@@ -1002,11 +990,9 @@ function plan(batch, extra, boost) {
   const ids = {}, o = {};
   batch.forEach((r, i) => { ids[i + 1] = r; o[i + 1] = r.vi; });
   
-  // Định dạng rõ ràng để mô hình trả về JSON object chuẩn
   const user = JSON.stringify(o, null, 1);
   const pin = tokSys + Math.ceil(user.length / 2.5) + 30;
   
-  // FIX: Sàn maxTok tối thiểu 1500 (không để 300) để không bao giờ bị cắt cụt JSON
   let maxTok = Math.ceil(batch.reduce((s, r) => s + estOut(r), 0) * 1.8 * boost) + extra + 300;
   maxTok = Math.min(Math.max(maxTok, 1500), 6000);
   
@@ -1025,7 +1011,6 @@ function pack(queue, c) {
   return batch;
 }
 
-/* RATE LIMIT & BUDGET WAIT */
 async function sleepUntil(ts, label) {
   while (!stopFlag && Date.now() < ts) {
     liveMsg = '⏳ ' + label + ' — còn ' + Math.ceil((ts - Date.now()) / 1000) + 's';
@@ -1051,7 +1036,6 @@ async function waitBudget(need, c) {
   }
 }
 
-/* CALL WORKER */
 async function callChat(p, c) {
   ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), 90000);
@@ -1098,7 +1082,6 @@ function parseModel(content) {
   return out;
 }
 
-/* MAIN TRANSLATE RUNNER */
 async function runTranslate() {
   if (running) return;
   const c = cfg();
