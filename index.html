@@ -297,6 +297,7 @@ td textarea {
 .b-js { background: #f3e8ff; color: #6b21a8; }
 .b-attr { background: #ccfbf1; color: #115e59; }
 .b-dyn { background: #ffedd5; color: #9a3412; }
+.b-tay { background: #fef08a; color: #854d0e; }
 
 .s-ok { background: var(--success-light); color: var(--success); border: 1px solid #bbf7d0; }
 .s-reuse { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
@@ -428,6 +429,20 @@ td textarea {
     </div>
   </div>
 
+  <!-- KHU VỰC TỰ THÊM TỪ TÙY CHỌN & CẤU HÌNH TỪ KHOÁ QUÉT -->
+  <div style="background:var(--surface-alt); border:1px solid var(--bd); border-radius:10px; padding:12px; margin-top:14px;">
+    <div class="row" style="margin:0; gap:8px;">
+      <input type="text" id="manualText" placeholder="Nhập chuỗi thủ công muốn thêm vào bảng (vd: Link Subscription URL:)..." style="flex:1; min-width:260px;">
+      <button class="ok" onclick="addManualString()">➕ Thêm vào bảng</button>
+    </div>
+    
+    <div class="row" style="margin-top:8px; margin-bottom:0; font-size:12px;">
+      <label class="s">Từ khoá quét thêm (cách nhau dấu phẩy):</label>
+      <input type="text" id="extraTermsInput" placeholder="vd: subscription url, copy link, ping" style="flex:1; font-size:12px; padding:6px 10px;">
+      <button class="g" style="padding:6px 12px; font-size:12px;" onclick="saveExtraTerms()">💾 Lưu từ khoá quét</button>
+    </div>
+  </div>
+
   <div class="row" style="margin-top:12px;">
     <input type="text" id="fSearch" placeholder="🔍 Tìm kiếm chuỗi tiếng Việt hoặc tiếng Anh..." style="width:300px;">
     <select id="fState">
@@ -472,11 +487,24 @@ td textarea {
 /* ===== I18N CORE v1 — ĐỒNG BỘ TUYỆT ĐỐI VỚI INDEX.HTML ===== */
 const VI_RE = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/;
 
-// Thêm các từ khoá không dấu của web VPN để Scanner không bỏ sót
-const EXTRA_UI_TERMS = ['link subscription url', 'subscription url', 'copy link'];
+function getExtraTerms() {
+  const saved = localStorage.getItem('tr_extra_terms');
+  if (saved !== null) return saved.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  return ['link subscription url', 'subscription url', 'copy link'];
+}
+
+function saveExtraTerms() {
+  const val = $('extraTermsInput').value.trim();
+  localStorage.setItem('tr_extra_terms', val);
+  log('💾 Đã lưu từ khoá quét bổ sung.', 'ok');
+  alert('Đã lưu! Lần quét tiếp theo sẽ tự động tóm các từ khoá này.');
+}
+
 const hasVi = s => {
   const str = String(s || '').toLowerCase().trim();
-  return VI_RE.test(str) || EXTRA_UI_TERMS.some(t => str.includes(t));
+  if (!str) return false;
+  const terms = getExtraTerms();
+  return VI_RE.test(str) || terms.some(t => str.includes(t));
 };
 
 const normWs = s => String(s).replace(/\s+/g,' ').trim();
@@ -982,6 +1010,41 @@ async function copyTrans() {
   }
 }
 
+/* TỰ THÊM TỪ THỦ CÔNG */
+function addManualString() {
+  const inp = $('manualText');
+  const txt = normWs(inp.value);
+  if (!txt) { alert('Vui lòng nhập nội dung chuỗi cần thêm!'); return; }
+  
+  const key = keyOf(txt);
+  if (byKey[key]) {
+    alert('Chuỗi này đã tồn tại trong bảng dịch!');
+    $('fSearch').value = txt;
+    filterRows();
+    return;
+  }
+  
+  const newRow = {
+    key: key,
+    vi: txt,
+    kinds: ['tay'],
+    dyn: /\{\d+\}/.test(txt),
+    n: 1,
+    skip: false,
+    en: '',
+    zh: '',
+    reuse: false,
+    tries: 0
+  };
+  
+  rows.unshift(newRow);
+  byKey[key] = newRow;
+  inp.value = '';
+  
+  renderTable();
+  log('➕ Đã thêm chuỗi thủ công: "' + txt + '"', 'ok');
+}
+
 const tokSys = Math.ceil(SYS.length / 3.2) + 20;
 const estIn = r => Math.ceil(r.vi.length / 2) + 12;
 const estOut = r => Math.ceil(24 + 1.2 * r.vi.length + 12 * ((r.vi.match(/\[\[\d+\]\]|\{\d+\}/g) || []).length));
@@ -1222,6 +1285,13 @@ function copyLog() {
   navigator.clipboard.writeText($('log').innerText);
   alert('Đã sao chép toàn bộ nhật ký vào clipboard!');
 }
+
+// Tự động load danh sách từ khoá mở rộng khi mở web
+window.addEventListener('DOMContentLoaded', () => {
+  if ($('extraTermsInput')) {
+    $('extraTermsInput').value = localStorage.getItem('tr_extra_terms') || 'link subscription url, subscription url, copy link';
+  }
+});
 </script>
 </body>
 </html>
