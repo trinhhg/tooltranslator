@@ -1,410 +1,1222 @@
 <!DOCTYPE html>
-<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VPN Trinh Hg – Translator v2</title>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Translator v2 — Công cụ dịch UI song ngữ (EN + ZH)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0b0f19;--card:#131a2a;--bd:#232d45;--tx:#e2e8f0;--mut:#8896b3;--acc:#6366f1}
-*{box-sizing:border-box}body{background:var(--bg);color:var(--tx);font:14px 'Segoe UI',Arial,sans-serif;margin:0;padding:0 20px 40px}
-#top{position:sticky;top:0;z-index:9;background:#0b0f19ee;backdrop-filter:blur(6px);border-bottom:1px solid var(--bd);padding:10px 0;margin:0 -20px 16px;padding-left:20px;padding-right:20px}
-#top .r{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:13px}#tClock{font:800 22px monospace;color:#a5b4fc}
-.bar{height:6px;background:#1c253b;border-radius:9px;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#6366f1,#a855f7);transition:.4s}
-h1{font-size:19px;margin:8px 0}h2{font-size:15px;margin:0 0 10px;color:#c7d2fe}.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
-input[type=text],input[type=password],input[type=number],select,textarea{background:#0c1120;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit}
-input[type=number]{width:90px}#wUrl{min-width:320px}#srcText{width:100%;height:110px;font-family:monospace;font-size:11px}
-button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:9px 15px;font-weight:700;cursor:pointer;font-size:13px}button:hover{filter:brightness(1.12)}button:disabled{opacity:.4;cursor:not-allowed}
-button.g{background:#2a3350}button.r{background:#dc2626}button.ok{background:#16a34a}
-label.s{font-size:12px;color:var(--mut)}.hint{font-size:12px;color:var(--mut);margin:4px 0}
-#log{background:#070a12;border:1px solid var(--bd);border-radius:10px;height:300px;overflow:auto;padding:8px 10px;font:12px/1.55 monospace}
-#log .ok{color:#86efac}#log .warn{color:#fcd34d}#log .err{color:#fca5a5}#log .info{color:#93c5fd}
-.tw{max-height:560px;overflow:auto;border:1px solid var(--bd);border-radius:10px}table{width:100%;border-collapse:collapse;font-size:12.5px}
-th{position:sticky;top:0;background:#182036;text-align:left;padding:7px;font-size:11px;color:var(--mut);text-transform:uppercase}td{padding:6px 7px;border-bottom:1px solid var(--bd);vertical-align:top}
-td.vi{max-width:340px;white-space:pre-wrap;word-break:break-word}td textarea{width:100%;min-width:200px;min-height:40px;resize:vertical}
-.b{display:inline-block;padding:1px 7px;border-radius:9px;font-size:10px;font-weight:800;margin:1px;background:#1f2942;color:#c7d2fe}
-.b-js{background:#3b2a5c}.b-attr{background:#1f4a3f}.b-dyn{background:#5c3a1f;color:#fdba74}
-.s-ok,.s-reuse{background:#14532d;color:#86efac}.s-todo{background:#3f3f46;color:#d4d4d8}.s-warn{background:#7c2d12;color:#fdba74}.s-skip{background:#1e293b;color:#64748b}
-</style></head><body>
-<div id="top"><div class="r"><b>⏱ <span id="tClock">00:00</span></b><span id="tState">Chưa chạy</span><span id="tTok"></span><span id="tDay"></span><span id="tLive" style="color:#fcd34d"></span></div><div class="bar"><i id="tBar"></i></div></div>
-<h1>🌐 Translator v2 — quét index.html → dịch VI → EN + ZH → xuất JSON</h1>
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-alt: #f1f5f9;
+  --bd: #e2e8f0;
+  --bd-focus: #818cf8;
+  --tx: #0f172a;
+  --tx-sec: #475569;
+  --tx-mut: #64748b;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #eef2ff;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --radius: 12px;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+}
 
-<div class="card"><h2>1) Nguồn: index.html</h2>
-<div class="row"><input type="file" id="fileSrc" accept=".html,.htm"> <span class="hint">hoặc dán toàn bộ nội dung index.html vào ô dưới rồi bấm Quét</span></div>
-<textarea id="srcText" placeholder="Dán toàn bộ index.html vào đây..."></textarea>
-<div class="row"><button onclick="doScan()">🔍 Quét</button><button class="g" onclick="exportSource()">⬇ Xuất translations_source_vi.json</button>
-<label class="s">Nạp translations.json cũ (chỉ dịch phần MỚI, tiết kiệm token): <input type="file" id="fileOld" accept=".json"></label></div></div>
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--tx);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  padding: 0 24px 60px;
+  line-height: 1.5;
+}
 
-<div class="card"><h2>2) Dịch bằng Groq (qua Worker riêng)</h2>
-<div class="row"><input type="text" id="wUrl" placeholder="https://translator-worker.xxx.workers.dev"><input type="password" id="wTok" placeholder="Token (nếu Worker đặt TRANSLATOR_TOKEN)"><button class="g" onclick="testWorker()">Test Worker</button></div>
-<div class="row"><label class="s">Budget token/phút <input type="number" id="sBudget" value="6000"></label><label class="s">Batch tối đa (token) <input type="number" id="sReserve" value="2500"></label><label class="s">Dự phòng reasoning (token) <input type="number" id="sExtra" value="0"></label></div>
-<div class="hint">Giới hạn Groq của bạn: 8K token/phút, 200K/ngày. Tool chỉ dùng ≤ Budget (mặc định ¾ = 6000) rồi tự chờ refill sang phút kế. Nếu model là loại "reasoning" (gpt-oss, qwen3…) mà kết quả bị cắt/rỗng → tăng "Dự phòng reasoning" (vd 1500) hoặc đặt reasoning_effort thấp trong Worker.</div>
-<div class="row"><button class="ok" id="btnRun" onclick="runTranslate()">▶ Dịch các chuỗi chưa có</button><button class="r" id="btnStop" onclick="stopRun()" disabled>■ Dừng</button><button class="g" onclick="copyLog()">Copy log</button></div>
-<div id="log"></div></div>
+/* TOP STICKY BAR */
+#top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--bd);
+  padding: 12px 24px;
+  margin: 0 -24px 20px;
+  box-shadow: var(--shadow-sm);
+}
+#top .r {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+}
+#tClock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 3px 10px;
+  border-radius: 8px;
+  border: 1px solid #c7d2fe;
+}
+.stat-pill {
+  background: var(--surface-alt);
+  border: 1px solid var(--bd);
+  padding: 4px 10px;
+  border-radius: 20px;
+  color: var(--tx-sec);
+}
+.bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
 
-<div class="card"><h2>3) Kết quả &amp; xuất</h2><div class="row"><span id="stats"></span></div>
-<div class="row"><input type="text" id="fSearch" placeholder="Tìm..."><select id="fState"><option value="">Tất cả</option><option value="todo">Chưa dịch</option><option value="warn">Lỗi marker</option><option value="ok">OK</option><option value="reuse">Dùng lại</option><option value="skip">Bỏ qua</option></select>
-<button class="ok" onclick="exportTrans()">⬇ Xuất translations.json (VI+EN+ZH)</button></div>
-<div class="hint">Cột trái: tick = BỎ QUA chuỗi không cần dịch. <code>[[1]] [[2]]</code> = thẻ HTML (giữ nguyên trong bản dịch), <code>{0}</code> = giá trị động do JS điền. Sửa tay EN/ZH được; sai marker sẽ báo LỖI MARKER.</div>
-<div class="tw"><table><thead><tr><th></th><th>Loại</th><th>Tiếng Việt (nguồn)</th><th>English</th><th>中文</th><th>Trạng thái</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+/* TYPOGRAPHY & CARDS */
+h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 12px 0 20px;
+  color: #1e1b4b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 14px;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--bd);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* FORMS & INPUTS */
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 10px 0;
+}
+input[type=text], input[type=password], input[type=number], select, textarea {
+  background: var(--surface);
+  border: 1px solid var(--bd);
+  color: var(--tx);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+input[type=text]:focus, input[type=password]:focus, input[type=number]:focus, select:focus, textarea:focus {
+  border-color: var(--bd-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+input[type=number] { width: 110px; }
+#wUrl { flex: 1; min-width: 320px; }
+#srcText, #oldJsonText {
+  width: 100%;
+  height: 110px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: #fafafa;
+  border: 1px solid #cbd5e1;
+}
+
+/* BUTTONS */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--primary);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  box-shadow: var(--shadow-sm);
+  transition: all .15s ease;
+}
+button:hover { background: var(--primary-hover); transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+button.g { background: #f1f5f9; color: var(--tx-sec); border: 1px solid var(--bd); }
+button.g:hover { background: #e2e8f0; color: var(--tx); }
+button.r { background: var(--danger); color: #fff; }
+button.r:hover { background: #b91c1c; }
+button.ok { background: var(--success); color: #fff; }
+button.ok:hover { background: #15803d; }
+button.outline { background: transparent; color: var(--primary); border: 1px solid #c7d2fe; }
+button.outline:hover { background: var(--primary-light); }
+
+/* TABS */
+.tab-group {
+  display: inline-flex;
+  background: var(--surface-alt);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid var(--bd);
+  margin-bottom: 8px;
+}
+.tab-btn {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: var(--tx-sec);
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 6px;
+}
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--primary);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+label.s {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tx-sec);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hint {
+  font-size: 12.5px;
+  color: var(--tx-mut);
+  line-height: 1.45;
+  margin: 6px 0;
+}
+
+/* LOG WINDOW */
+#log {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 10px;
+  height: 220px;
+  overflow: auto;
+  padding: 12px 14px;
+  font: 12.5px/1.6 'JetBrains Mono', monospace;
+  margin-top: 10px;
+}
+#log .ok { color: #4ade80; }
+#log .warn { color: #fbbf24; }
+#log .err { color: #f87171; }
+#log .info { color: #60a5fa; }
+
+/* BẢNG DỊCH — MỞ RỘNG TỰ NHIÊN, KHÔNG KHUNG CUỘN */
+.table-container {
+  width: 100%;
+  margin-top: 14px;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: visible; /* Không cuộn ép khung */
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  position: sticky;
+  top: 72px; /* Dính ngay dưới top header bar */
+  z-index: 10;
+  background: #f8fafc;
+  color: var(--tx-sec);
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--bd);
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+}
+tr:hover td {
+  background: #fafafa;
+}
+td.vi {
+  max-width: 320px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-weight: 500;
+  color: #1e293b;
+}
+td textarea {
+  width: 100%;
+  min-width: 220px;
+  min-height: 48px;
+  resize: vertical;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+/* BADGES */
+.b {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  margin: 1px;
+}
+.b-html { background: #e0e7ff; color: #3730a3; }
+.b-js { background: #f3e8ff; color: #6b21a8; }
+.b-attr { background: #ccfbf1; color: #115e59; }
+.b-dyn { background: #ffedd5; color: #9a3412; }
+
+.s-ok { background: var(--success-light); color: var(--success); border: 1px solid #bbf7d0; }
+.s-reuse { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+.s-todo { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+.s-warn { background: var(--warning-light); color: var(--warning); border: 1px solid #fde68a; }
+.s-skip { background: #f3f4f6; color: #9ca3af; border: 1px solid #e5e7eb; }
+
+.stat-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.stat-tag {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--surface-alt);
+  border: 1px solid var(--bd);
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<!-- TOP STICKY BAR -->
+<div id="top">
+  <div class="r">
+    <span id="tClock">00:00</span>
+    <span class="stat-pill"><b>Trạng thái:</b> <span id="tState">Chưa chạy</span></span>
+    <span class="stat-pill" id="tTok">Token/phút: 0/6000</span>
+    <span class="stat-pill" id="tDay">Hôm nay: ~0/200K</span>
+    <span id="tLive" style="color:var(--warning);font-weight:600"></span>
+  </div>
+  <div class="bar"><i id="tBar"></i></div>
+</div>
+
+<h1>🌐 Công cụ Dịch Giao diện Song ngữ (VI ➜ EN + ZH)</h1>
+
+<!-- BƯỚC 1: NGUỒN HTML -->
+<div class="card">
+  <h2>1) Tệp nguồn index.html &amp; Bản dịch cũ</h2>
+  
+  <div class="tab-group">
+    <button class="tab-btn active" onclick="switchTab('src','upload')">📁 Tải file HTML lên</button>
+    <button class="tab-btn" onclick="switchTab('src','paste')">📝 Dán mã HTML</button>
+  </div>
+
+  <div id="srcTabUpload" class="row">
+    <input type="file" id="fileSrc" accept=".html,.htm">
+    <span class="hint">Chọn file index.html từ máy tính để tự động quét toàn bộ chuỗi tiếng Việt.</span>
+  </div>
+
+  <div id="srcTabPaste" style="display:none;margin-top:6px;">
+    <textarea id="srcText" placeholder="Dán toàn bộ nội dung mã nguồn HTML vào đây..."></textarea>
+  </div>
+
+  <div class="row" style="margin-top:12px;">
+    <button onclick="doScan()">🔍 Quét chuỗi tiếng Việt</button>
+    <button class="g" onclick="exportSource()">⬇ Xuất translations_source_vi.json</button>
+  </div>
+
+  <!-- NẠP BẢN DỊCH CŨ -->
+  <div style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--bd);">
+    <label class="s" style="font-weight:600;margin-bottom:8px;">
+      Nạp translations.json cũ (tiết kiệm token Groq, chỉ dịch phần chuỗi mới):
+    </label>
+    
+    <div class="tab-group">
+      <button class="tab-btn active" onclick="switchTab('old','upload')">📁 Tải file JSON cũ</button>
+      <button class="tab-btn" onclick="switchTab('old','paste')">📝 Dán chuỗi JSON cũ</button>
+    </div>
+
+    <div id="oldTabUpload" class="row">
+      <input type="file" id="fileOld" accept=".json">
+      <span id="oldStatus" class="hint">Chưa nạp file cũ</span>
+    </div>
+
+    <div id="oldTabPaste" style="display:none;margin-top:6px;">
+      <textarea id="oldJsonText" placeholder="Dán nội dung translations.json cũ vào đây..."></textarea>
+      <div class="row">
+        <button class="g" onclick="applyPastedOldJson()">Áp dụng JSON đã dán</button>
+        <button class="g" onclick="clearOldJson()">Xoá bản dịch cũ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BƯỚC 2: CẤU HÌNH GROQ -->
+<div class="card">
+  <h2>2) Kết nối Groq (qua Cloudflare Worker riêng)</h2>
+  
+  <div class="row">
+    <input type="text" id="wUrl" placeholder="https://translator-worker.xxx.workers.dev">
+    <input type="password" id="wTok" placeholder="Token (nếu Worker đặt TRANSLATOR_TOKEN)">
+    <button class="g" onclick="testWorker()">Kiểm tra kết nối</button>
+  </div>
+
+  <div class="row">
+    <label class="s">Budget token/phút <input type="number" id="sBudget" value="6000"></label>
+    <label class="s">Batch tối đa (token) <input type="number" id="sReserve" value="2500"></label>
+    <label class="s">Dự phòng reasoning <input type="number" id="sExtra" value="0"></label>
+  </div>
+
+  <div class="hint">
+    Giới hạn gói Groq Free: 8.000 token/phút, 200.000 token/ngày. Công cụ tự điều phối batch để không chạm ngưỡng 429.
+  </div>
+
+  <div class="row" style="margin-top:14px;">
+    <button class="ok" id="btnRun" onclick="runTranslate()">▶ Bắt đầu dịch các chuỗi mới</button>
+    <button class="r" id="btnStop" onclick="stopRun()" disabled>■ Dừng lại</button>
+    <button class="g" onclick="copyLog()">📋 Sao chép nhật ký</button>
+    <button class="g" onclick="$('log').innerHTML=''">🗑 Xoá log</button>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<!-- BƯỚC 3: BẢNG KẾT QUẢ & XUẤT -->
+<div class="card">
+  <h2>3) Bảng danh sách &amp; Xuất kết quả</h2>
+  
+  <div class="row" style="justify-content:space-between;">
+    <div class="stat-group" id="stats"></div>
+    <div class="row" style="margin:0;">
+      <button class="ok" onclick="exportTrans()">⬇ Xuất translations.json (VI + EN + ZH)</button>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:12px;">
+    <input type="text" id="fSearch" placeholder="🔍 Tìm kiếm chuỗi tiếng Việt hoặc tiếng Anh..." style="width:300px;">
+    <select id="fState">
+      <option value="">Tất cả trạng thái</option>
+      <option value="todo">Chưa dịch</option>
+      <option value="reuse">Dùng lại từ bản cũ</option>
+      <option value="ok">Đã dịch hoàn tất</option>
+      <option value="warn">Cảnh báo sai marker</option>
+      <option value="skip">Đã bỏ qua</option>
+    </select>
+  </div>
+
+  <div class="hint">
+    <b>Hướng dẫn:</b> Đánh dấu tích vào ô cột ngoài cùng bên trái để <b>BỎ QUA</b> chuỗi không muốn dịch.
+    Các thẻ <code>[[1]]</code>, <code>[[2]]</code> và biến <code>{0}</code> được bảo lưu tự động. Bạn có thể tự chỉnh sửa trực tiếp nội dung tiếng Anh hoặc tiếng Trung trong bảng.
+  </div>
+
+  <!-- BẢNG DÀI TỰ NHIÊN, BỎ KHUNG CUỘN -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px;text-align:center;">Bỏ</th>
+          <th style="width:110px;">Vị trí</th>
+          <th>Tiếng Việt (Gốc)</th>
+          <th>English</th>
+          <th>中文 (Giản thể)</th>
+          <th style="width:120px;">Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody id="tb">
+        <tr>
+          <td colspan="6" style="text-align:center;padding:30px;color:var(--tx-mut);">
+            Chưa có dữ liệu. Vui lòng tải file hoặc dán mã HTML ở Bước 1 và nhấn <b>Quét chuỗi</b>.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <script>
-/* ===== I18N CORE v1 — KHÔNG SỬA: phải GIỐNG HỆT trong index.html và translator.html ===== */
-const VI_RE=/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/;
-const hasVi=s=>VI_RE.test(String(s).toLowerCase());
-const normWs=s=>String(s).replace(/\s+/g,' ').trim();
-const h53=str=>{let h1=0xdeadbeef,h2=0x41c6ce57;for(let i=0,c;i<str.length;i++){c=str.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0);};
-const keyOf=s=>'t'+h53(s).toString(36);
-const I_ATTRS=['placeholder','title','alt','aria-label'];
-const I_SKIP=new Set(['SCRIPT','STYLE','NOSCRIPT','TEXTAREA','SELECT','OPTION','SVG','CODE','PRE','HEAD','TEMPLATE','IFRAME']);
-const I_INLINE=new Set(['A','B','I','U','S','EM','STRONG','SPAN','SMALL','MARK','SUB','SUP','BR','FONT','ABBR','IMG']);
-const I_VOID=new Set(['BR','IMG']);
-const tg=el=>el.tagName.toUpperCase();
-const skipEl=el=>I_SKIP.has(tg(el))||el.getAttribute('translate')==='no';
-const escHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const isInlineOnly=el=>Array.prototype.every.call(el.children,c=>!skipEl(c)&&I_INLINE.has(tg(c))&&isInlineOnly(c));
-const openTag=c=>{const s=c.cloneNode(false).outerHTML;return I_VOID.has(tg(c))?s:s.slice(0,s.length-tg(c).length-3);};
-/* Biến nội dung 1 phần tử "chỉ chứa chữ + thẻ inline" thành chuỗi dịch được: thẻ -> [[1]] [[2]]..., bỏ thẻ rỗng/bao ngoài ở 2 đầu */
-function protectEl(el){
-  const parts=[],raw=[],kind=[],pair={},openOf={};let n=0;
-  (function rec(node){
-    for(const c of node.childNodes){
-      if(c.nodeType===3)parts.push(c.nodeValue);
-      else if(c.nodeType===1){
-        const o=++n;raw[o]=openTag(c);parts.push({id:o});
-        if(I_VOID.has(tg(c)))kind[o]='v';
-        else{kind[o]='o';rec(c);const k=++n;raw[k]='</'+c.tagName.toLowerCase()+'>';kind[k]='c';pair[o]=k;openOf[k]=o;parts.push({id:k});}
+/* ===== I18N CORE v1 — ĐỒNG BỘ TUYỆT ĐỐI VỚI INDEX.HTML ===== */
+const VI_RE = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/;
+const hasVi = s => VI_RE.test(String(s).toLowerCase());
+const normWs = s => String(s).replace(/\s+/g,' ').trim();
+
+// Băm MurmurHash3 53-bit đảm bảo không lệch khóa so với hệ thống hiện tại
+const h53 = str => {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0, c; i < str.length; i++) {
+    c = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 2654435761);
+    h2 = Math.imul(h2 ^ c, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+};
+const keyOf = s => 't' + h53(s).toString(36);
+
+// Danh mục thuộc tính cần bóc tách
+const I_ATTRS = ['placeholder', 'title', 'alt', 'aria-label', 'data-tooltip', 'data-title', 'data-tip'];
+// ĐÃ BỎ OPTION KHỎI I_SKIP để quét được các mục trong thẻ <select>
+const I_SKIP = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'SELECT', 'SVG', 'CODE', 'PRE', 'HEAD', 'TEMPLATE', 'IFRAME']);
+const I_INLINE = new Set(['A', 'B', 'I', 'U', 'S', 'EM', 'STRONG', 'SPAN', 'SMALL', 'MARK', 'SUB', 'SUP', 'BR', 'FONT', 'ABBR', 'IMG']);
+const I_VOID = new Set(['BR', 'IMG']);
+
+const tg = el => el.tagName.toUpperCase();
+const skipEl = el => I_SKIP.has(tg(el)) || el.getAttribute('translate') === 'no';
+const escHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const isInlineOnly = el => Array.prototype.every.call(el.children, c => !skipEl(c) && I_INLINE.has(tg(c)) && isInlineOnly(c));
+const openTag = c => {
+  const s = c.cloneNode(false).outerHTML;
+  return I_VOID.has(tg(c)) ? s : s.slice(0, s.length - tg(c).length - 3);
+};
+
+/* Bảo toàn thẻ lồng nhau thành [[1]] [[2]] */
+function protectEl(el) {
+  const parts = [], raw = [], kind = [], pair = {}, openOf = {};
+  let n = 0;
+  (function rec(node) {
+    for (const c of node.childNodes) {
+      if (c.nodeType === 3) parts.push(c.nodeValue);
+      else if (c.nodeType === 1) {
+        const o = ++n; raw[o] = openTag(c); parts.push({ id: o });
+        if (I_VOID.has(tg(c))) kind[o] = 'v';
+        else {
+          kind[o] = 'o'; rec(c); const k = ++n; raw[k] = '</' + c.tagName.toLowerCase() + '>';
+          kind[k] = 'c'; pair[o] = k; openOf[k] = o; parts.push({ id: k });
+        }
       }
     }
   })(el);
-  const lead=[],trail=[],isWs=p=>typeof p==='string'&&!p.trim();
-  for(let ch=true;ch;){
-    ch=false;
-    while(parts.length&&isWs(parts[0]))parts.shift();
-    while(parts.length&&isWs(parts[parts.length-1]))parts.pop();
-    const a=parts[0],z=parts[parts.length-1];
-    if(a&&typeof a==='object'){
-      if(kind[a.id]==='v'){lead.push(raw[a.id]);parts.shift();ch=true;continue;}
-      const b=parts[1];
-      if(kind[a.id]==='o'&&b&&typeof b==='object'&&b.id===pair[a.id]){lead.push(raw[a.id],raw[b.id]);parts.splice(0,2);ch=true;continue;}
-      if(kind[a.id]==='o'&&parts.length>1&&z&&typeof z==='object'&&z.id===pair[a.id]){lead.push(raw[a.id]);trail.unshift(raw[z.id]);parts.shift();parts.pop();ch=true;continue;}
+
+  const lead = [], trail = [], isWs = p => typeof p === 'string' && !p.trim();
+  for (let ch = true; ch;) {
+    ch = false;
+    while (parts.length && isWs(parts[0])) parts.shift();
+    while (parts.length && isWs(parts[parts.length - 1])) parts.pop();
+    const a = parts[0], z = parts[parts.length - 1];
+    if (a && typeof a === 'object') {
+      if (kind[a.id] === 'v') { lead.push(raw[a.id]); parts.shift(); ch = true; continue; }
+      const b = parts[1];
+      if (kind[a.id] === 'o' && b && typeof b === 'object' && b.id === pair[a.id]) {
+        lead.push(raw[a.id], raw[b.id]); parts.splice(0, 2); ch = true; continue;
+      }
+      if (kind[a.id] === 'o' && parts.length > 1 && z && typeof z === 'object' && z.id === pair[a.id]) {
+        lead.push(raw[a.id]); trail.unshift(raw[z.id]); parts.shift(); parts.pop(); ch = true; continue;
+      }
     }
-    if(z&&typeof z==='object'){
-      if(kind[z.id]==='v'){trail.unshift(raw[z.id]);parts.pop();ch=true;continue;}
-      const b=parts[parts.length-2];
-      if(kind[z.id]==='c'&&b&&typeof b==='object'&&b.id===openOf[z.id]){trail.unshift(raw[b.id],raw[z.id]);parts.splice(parts.length-2,2);ch=true;continue;}
+    if (z && typeof z === 'object') {
+      if (kind[z.id] === 'v') { trail.unshift(raw[z.id]); parts.pop(); ch = true; continue; }
+      const b = parts[parts.length - 2];
+      if (kind[z.id] === 'c' && b && typeof b === 'object' && b.id === openOf[z.id]) {
+        trail.unshift(raw[b.id], raw[z.id]); parts.splice(parts.length - 2, 2); ch = true; continue;
+      }
     }
   }
-  if(typeof parts[0]==='string'&&/^\s/.test(parts[0]))lead.push(' ');
-  if(typeof parts[parts.length-1]==='string'&&/\s$/.test(parts[parts.length-1]))trail.unshift(' ');
-  const tags=[];let text='';
-  for(const p of parts){if(typeof p==='string')text+=p;else{tags.push(raw[p.id]);text+='[['+tags.length+']]';}}
-  return{text:normWs(text),tags,lead:lead.join(''),trail:trail.join('')};
+  if (typeof parts[0] === 'string' && /^\s/.test(parts[0])) lead.push(' ');
+  if (typeof parts[parts.length - 1] === 'string' && /\s$/.test(parts[parts.length - 1])) trail.unshift(' ');
+  const tags = []; let text = '';
+  for (const p of parts) {
+    if (typeof p === 'string') text += p;
+    else { tags.push(raw[p.id]); text += '[[' + tags.length + ']]'; }
+  }
+  return { text: normWs(text), tags, lead: lead.join(''), trail: trail.join('') };
 }
-const restoreHtml=(tr,tags)=>String(tr).split(/(\[\[\d+\]\])/).map(p=>{const m=p.match(/^\[\[(\d+)\]\]$/);return m?(tags[+m[1]-1]||''):escHtml(p);}).join('');
-const mk=s=>(String(s).match(/\[\[\d+\]\]/g)||[]).sort().join(',');
-/* ===== HẾT I18N CORE ===== */
 
-/* ===== SCANNER: quét toàn bộ index.html (HTML tĩnh + thuộc tính + chuỗi trong <script>) ===== */
-function unesc(s){return s.replace(/\\(u\{([0-9a-fA-F]+)\}|u([0-9a-fA-F]{4})|x([0-9a-fA-F]{2})|\r?\n|[\s\S])/g,(m,a,b,c,d)=>{if(b)return String.fromCodePoint(parseInt(b,16));if(c)return String.fromCharCode(parseInt(c,16));if(d)return String.fromCharCode(parseInt(d,16));if(/^\r?\n$/.test(a))return'';const map={n:' ',t:' ',r:' ',b:'',f:'',v:'',0:''};return a in map?map[a]:a;});}
-/* Tách MỌI chuỗi '..' ".." `..` trong JS (bỏ comment + regex, hỗ trợ ${...} lồng nhau). ${expr} -> ký tự đánh dấu \uE000n\uE001 */
-function extractLiterals(src){
-  const out=[];
-  function str(i,q){let j=i+1,s='';while(j<src.length&&src[j]!==q){if(src[j]==='\\'){s+=src[j]+src[j+1];j+=2;}else{if(src[j]==='\n')break;s+=src[j++];}}return{v:unesc(s),i:j+1};}
-  function tpl(i){let j=i,v='',raw='',k=0;while(j<src.length&&src[j]!=='`'){if(src[j]==='\\'){raw+=src[j]+src[j+1];j+=2;}else if(src[j]==='$'&&src[j+1]==='{'){v+=unesc(raw)+'\uE000'+(k++)+'\uE001';raw='';j=code(j+2,true);}else raw+=src[j++];}return{v:v+unesc(raw),i:j+1};}
-  function code(i,inExpr){
-    let depth=0,prev='';
-    while(i<src.length){
-      const c=src[i],n=src[i+1];
-      if(c==='/'&&n==='/'){const e=src.indexOf('\n',i);i=e<0?src.length:e;continue;}
-      if(c==='/'&&n==='*'){const e=src.indexOf('*/',i+2);i=e<0?src.length:e+2;continue;}
-      if(c==='"'||c==="'"){const r=str(i,c);out.push(r.v);i=r.i;prev='"';continue;}
-      if(c==='`'){const r=tpl(i+1);out.push(r.v);i=r.i;prev='"';continue;}
-      if(c==='/'){
-        const before=src.slice(Math.max(0,i-8),i);
-        if(prev===''||/[(,=:\[!&|?{};+\-*%<>~^]/.test(prev)||/(return|typeof|case|else|do|in|of)\s*$/.test(before)){
-          let j=i+1,cls=false;
-          while(j<src.length){const d=src[j];if(d==='\\')j+=2;else if(d==='\n')break;else if(d==='['){cls=true;j++;}else if(d===']'){cls=false;j++;}else if(d==='/'&&!cls){j++;break;}else j++;}
-          while(/[a-z]/i.test(src[j]||''))j++;
-          i=j;prev=')';continue;
+/* ===== SCANNER NÂNG CAO ===== */
+function unesc(s) {
+  return s.replace(/\\(u\{([0-9a-fA-F]+)\}|u([0-9a-fA-F]{4})|x([0-9a-fA-F]{2})|\r?\n|[\s\S])/g, (m, a, b, c, d) => {
+    if (b) return String.fromCodePoint(parseInt(b, 16));
+    if (c) return String.fromCharCode(parseInt(c, 16));
+    if (d) return String.fromCharCode(parseInt(d, 16));
+    if (/^\r?\n$/.test(a)) return '';
+    const map = { n: ' ', t: ' ', r: ' ', b: '', f: '', v: '', 0: '' };
+    return a in map ? map[a] : a;
+  });
+}
+
+function extractLiterals(src) {
+  const out = [];
+  function str(i, q) {
+    let j = i + 1, s = '';
+    while (j < src.length && src[j] !== q) {
+      if (src[j] === '\\') { s += src[j] + src[j + 1]; j += 2; }
+      else { if (src[j] === '\n') break; s += src[j++]; }
+    }
+    return { v: unesc(s), i: j + 1 };
+  }
+  function tpl(i) {
+    let j = i, v = '', raw = '', k = 0;
+    while (j < src.length && src[j] !== '`') {
+      if (src[j] === '\\') { raw += src[j] + src[j + 1]; j += 2; }
+      else if (src[j] === '$' && src[j + 1] === '{') {
+        v += unesc(raw) + '\uE000' + (k++) + '\uE001'; raw = ''; j = code(j + 2, true);
+      } else raw += src[j++];
+    }
+    return { v: v + unesc(raw), i: j + 1 };
+  }
+  function code(i, inExpr) {
+    let depth = 0, prev = '';
+    while (i < src.length) {
+      const c = src[i], n = src[i + 1];
+      if (c === '/' && n === '/') { const e = src.indexOf('\n', i); i = e < 0 ? src.length : e; continue; }
+      if (c === '/' && n === '*') { const e = src.indexOf('*/', i + 2); i = e < 0 ? src.length : e + 2; continue; }
+      if (c === '"' || c === "'") { const r = str(i, c); out.push(r.v); i = r.i; prev = '"'; continue; }
+      if (c === '`') { const r = tpl(i + 1); out.push(r.v); i = r.i; prev = '"'; continue; }
+      if (c === '/') {
+        const before = src.slice(Math.max(0, i - 8), i);
+        if (prev === '' || /[(,=:\[!&|?{};+\-*%<>~^]/.test(prev) || /(return|typeof|case|else|do|in|of)\s*$/.test(before)) {
+          let j = i + 1, cls = false;
+          while (j < src.length) {
+            const d = src[j];
+            if (d === '\\') j += 2;
+            else if (d === '\n') break;
+            else if (d === '[') { cls = true; j++; }
+            else if (d === ']') { cls = false; j++; }
+            else if (d === '/' && !cls) { j++; break; }
+            else j++;
+          }
+          while (/[a-z]/i.test(src[j] || '')) j++;
+          i = j; prev = ')'; continue;
         }
-        i++;prev='/';continue;
+        i++; prev = '/'; continue;
       }
-      if(inExpr){if(c==='{')depth++;else if(c==='}'){if(depth===0)return i+1;depth--;}}
-      if(!/\s/.test(c))prev=c;
+      if (inExpr) {
+        if (c === '{') depth++;
+        else if (c === '}') { if (depth === 0) return i + 1; depth--; }
+      }
+      if (!/\s/.test(c)) prev = c;
       i++;
     }
     return i;
   }
-  code(0,false);return out;
+  code(0, false);
+  return out;
 }
-function collectDom(root,cb,kind){
-  for(const el of [root,...root.querySelectorAll('*')]){
-    if(skipEl(el)||el.closest('[translate="no"]'))continue;
-    for(const a of I_ATTRS){const v=el.getAttribute(a);if(v&&hasVi(v))cb(v,'attr');}
+
+function collectDom(root, cb, kind) {
+  for (const el of [root, ...root.querySelectorAll('*')]) {
+    if (skipEl(el) || el.closest('[translate="no"]')) continue;
+    
+    // Quét thuộc tính văn bản
+    for (const a of I_ATTRS) {
+      const v = el.getAttribute(a);
+      if (v && hasVi(v)) cb(v, 'attr');
+    }
+    // Quét giá trị nút bấm <input type="button|submit|reset" value="...">
+    if (el.tagName === 'INPUT' && /^(button|submit|reset)$/i.test(el.type || '')) {
+      const v = el.value;
+      if (v && hasVi(v)) cb(v, 'attr');
+    }
   }
-  (function w(el){
-    if(skipEl(el))return;
-    if(isInlineOnly(el)){if(hasVi(el.textContent))cb(protectEl(el).text,kind);return;}
-    for(const c of el.childNodes){if(c.nodeType===3){if(hasVi(c.nodeValue))cb(c.nodeValue,kind);}else if(c.nodeType===1)w(c);}
+
+  (function w(el) {
+    if (skipEl(el)) return;
+    if (isInlineOnly(el)) {
+      if (hasVi(el.textContent)) cb(protectEl(el).text, kind);
+      return;
+    }
+    for (const c of el.childNodes) {
+      if (c.nodeType === 3) {
+        if (hasVi(c.nodeValue)) cb(c.nodeValue, kind);
+      } else if (c.nodeType === 1) w(c);
+    }
   })(root);
 }
-function scanLiteral(v,cb){
-  if(!hasVi(v))return;
-  if(!/[<&]/.test(v)){cb(v,'js');return;}
-  const body=new DOMParser().parseFromString('<!DOCTYPE html><body>'+v,'text/html').body;
-  collectDom(body,cb,'js');
-  if(v.indexOf('\uE000')>=0){const tw=body.ownerDocument.createTreeWalker(body,4);let n;while((n=tw.nextNode())){if(hasVi(n.nodeValue))cb(n.nodeValue,'js');}}
+
+function scanLiteral(v, cb) {
+  if (!hasVi(v)) return;
+  if (!/[<&]/.test(v)) { cb(v, 'js'); return; }
+  const body = new DOMParser().parseFromString('<!DOCTYPE html><body>' + v, 'text/html').body;
+  collectDom(body, cb, 'js');
+  if (v.indexOf('\uE000') >= 0) {
+    const tw = body.ownerDocument.createTreeWalker(body, 4);
+    let n; while ((n = tw.nextNode())) { if (hasVi(n.nodeValue)) cb(n.nodeValue, 'js'); }
+  }
 }
-function scanSource(htmlText){
-  const doc=new DOMParser().parseFromString(htmlText,'text/html'),map=new Map();
-  const add=(t,kind)=>{
-    t=normWs(String(t).replace(/\uE000(\d+)\uE001/g,'{$1}'));
-    if(!t||!hasVi(t))return;
-    const dyn=/\{\d+\}/.test(t);
-    if(dyn&&t.replace(/\{\d+\}|\[\[\d+\]\]/g,'').trim().length<6)return;
-    const key=keyOf(t);let u=map.get(key);
-    if(!u){u={key,vi:t,kinds:new Set(),n:0,dyn};map.set(key,u);}
-    u.kinds.add(kind);u.n++;
+
+function scanSource(htmlText) {
+  const doc = new DOMParser().parseFromString(htmlText, 'text/html'), map = new Map();
+  const add = (t, kind) => {
+    t = normWs(String(t).replace(/\uE000(\d+)\uE001/g, '{$1}'));
+    if (!t || !hasVi(t)) return;
+    const dyn = /\{\d+\}/.test(t);
+    if (dyn && t.replace(/\{\d+\}|\[\[\d+\]\]/g, '').trim().length < 4) return;
+    const key = keyOf(t);
+    let u = map.get(key);
+    if (!u) { u = { key, vi: t, kinds: new Set(), n: 0, dyn }; map.set(key, u); }
+    u.kinds.add(kind);
+    u.n++;
   };
-  collectDom(doc.body,add,'html');
-  if(doc.title)add(doc.title,'html');
-  doc.querySelectorAll('script:not([src])').forEach(s=>{
-    const ty=(s.getAttribute('type')||'').toLowerCase();if(ty&&!/javascript|module/.test(ty))return;
-    for(const v of extractLiterals(s.textContent))scanLiteral(v,add);
+
+  collectDom(doc.body, add, 'html');
+  if (doc.title) add(doc.title, 'html');
+
+  doc.querySelectorAll('script:not([src])').forEach(s => {
+    const ty = (s.getAttribute('type') || '').toLowerCase();
+    if (ty && !/javascript|module/.test(ty)) return;
+    for (const v of extractLiterals(s.textContent)) scanLiteral(v, add);
   });
-  return[...map.values()];
-}
-/* ===== HẾT SCANNER ===== */
 
-const $=id=>document.getElementById(id);
-const BUDGET_DEFAULT=6000,DAILY=200000,SYS=`You translate UI strings of a Vietnamese VPN-reseller website into English and Simplified Chinese.
-Input: a JSON object mapping numeric ids to Vietnamese strings.
-Output: ONLY a JSON object with the SAME ids, each value {"en":"...","zh":"..."}. Every id must appear.
+  return [...map.values()];
+}
+
+/* ===== APP STATE ===== */
+const $ = id => document.getElementById(id);
+const BUDGET_DEFAULT = 6000, DAILY = 200000;
+
+// Prompt hoàn thiện: Ép chặt chẽ JSON Object, tránh tuyệt đối lỗi 400
+const SYS = `You are a professional software translator. You translate UI strings of a Vietnamese VPN service into English and Simplified Chinese.
+You will receive a JSON object of numeric IDs mapping to Vietnamese strings.
+You MUST output ONLY a valid JSON object mapping the same numeric IDs to {"en": "...", "zh": "..."}.
 Rules:
-- Tokens like [[1]] [[2]] and {0} {1} are code placeholders. Copy each one EXACTLY once, never translate/delete/add them. You may move them so the sentence reads naturally.
-- Keep emoji, numbers, URLs, currency (VND), units (GB), and brand names (VPN Trinh Hg, Zalo, WeChat, Telegram, Alipay, Weixin, Facebook, TikTok, Netflix, Messenger, Instagram, YouTube) unchanged.
-- Keep UPPERCASE strings uppercase in English. Use short natural wording for buttons and labels.`;
-let rows=[],byKey={},oldMap={},running=false,stopFlag=false,runStart=0,ledger=[],liveMsg='',lastRun=0,sessionTok=0,ctrl=null;
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const fmt=ms=>{ms=Math.max(0,Math.floor(ms/1000));return String(Math.floor(ms/60)).padStart(2,'0')+':'+String(ms%60).padStart(2,'0');};
-const clock=ts=>new Date(ts).toLocaleTimeString('vi-VN');
-const dayKey=()=>'tr_daily_'+new Date().toISOString().slice(0,10);
-const dailyUsed=()=>+localStorage.getItem(dayKey())||0;
-const addDaily=n=>localStorage.setItem(dayKey(),String(dailyUsed()+n));
-const tokSame=(a,b)=>{const f=s=>(String(s).match(/\[\[\d+\]\]|\{\d+\}/g)||[]).sort().join(',');return f(a)===f(b);};
-const valid=r=>!!(r.en&&r.zh&&tokSame(r.vi,r.en)&&tokSame(r.vi,r.zh));
-const stateOf=r=>r.skip?'skip':(!r.en||!r.zh)?'todo':!valid(r)?'warn':r.reuse?'reuse':'ok';
-const cfg=()=>({url:$('wUrl').value.trim().replace(/\/$/,''),token:$('wTok').value.trim(),budget:+$('sBudget').value||BUDGET_DEFAULT,reserve:+$('sReserve').value||2500,extra:+$('sExtra').value||0});
-['wUrl','wTok','sBudget','sReserve','sExtra'].forEach(id=>{const v=localStorage.getItem('tr_'+id);if(v!==null)$(id).value=v;$(id).addEventListener('change',()=>localStorage.setItem('tr_'+id,$(id).value));});
+1. Every ID in the input must be present in the output.
+2. Tokens like [[1]], [[2]] and {0}, {1} are code placeholders. Retain them EXACTLY as-is. Copy each placeholder once; never translate, alter or drop them.
+3. Keep brand names (VPN Trinh Hg, Zalo, WeChat, Telegram, Alipay, Netflix, Facebook, TikTok), technical protocols (Vmess, Vless, Trojan, Shadowsocks, Node), currency (VND, đ), and units (GB, MB, Mbps, ms) unchanged.
+4. Keep English translations natural, concise, and professional for UI buttons and labels.`;
 
-/* ---------- LOG ---------- */
-function log(msg,cls){const d=document.createElement('div');d.className=cls||'';d.textContent='['+(running?fmt(Date.now()-runStart):clock(Date.now()))+'] '+msg;const b=$('log');b.appendChild(d);b.scrollTop=b.scrollHeight;}
-setInterval(()=>{
-  const c=cfg(),now=Date.now();
-  $('tClock').textContent=running?fmt(now-runStart):(lastRun?fmt(lastRun)+' (lần trước)':'00:00');
-  const used=ledger.filter(e=>e.t>now-60000).reduce((s,e)=>s+e.tokens,0);
-  $('tTok').textContent='Token/phút: '+used+'/'+c.budget;
-  $('tDay').textContent='Hôm nay: ~'+dailyUsed()+'/'+DAILY;
-  $('tLive').textContent=liveMsg;
-},250);
+let rows = [], byKey = {}, oldMap = {}, running = false, stopFlag = false, runStart = 0, ledger = [], liveMsg = '', lastRun = 0, sessionTok = 0, ctrl = null;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const fmt = ms => { ms = Math.max(0, Math.floor(ms / 1000)); return String(Math.floor(ms / 60)).padStart(2, '0') + ':' + String(ms % 60).padStart(2, '0'); };
+const clock = ts => new Date(ts).toLocaleTimeString('vi-VN');
+const dayKey = () => 'tr_daily_' + new Date().toISOString().slice(0, 10);
+const dailyUsed = () => +localStorage.getItem(dayKey()) || 0;
+const addDaily = n => localStorage.setItem(dayKey(), String(dailyUsed() + n));
+const tokSame = (a, b) => {
+  const f = s => (String(s).match(/\[\[\d+\]\]|\{\d+\}/g) || []).sort().join(',');
+  return f(a) === f(b);
+};
+const valid = r => !!(r.en && r.zh && tokSame(r.vi, r.en) && tokSame(r.vi, r.zh));
+const stateOf = r => r.skip ? 'skip' : (!r.en || !r.zh) ? 'todo' : !valid(r) ? 'warn' : r.reuse ? 'reuse' : 'ok';
+const cfg = () => ({
+  url: $('wUrl').value.trim().replace(/\/$/, ''),
+  token: $('wTok').value.trim(),
+  budget: +$('sBudget').value || BUDGET_DEFAULT,
+  reserve: +$('sReserve').value || 2500,
+  extra: +$('sExtra').value || 0
+});
 
-/* ---------- QUÉT ---------- */
-function doScan(){
-  const txt=$('srcText').value.trim();
-  if(!txt){alert('Chưa có nội dung index.html');return;}
-  let list;try{list=scanSource(txt);}catch(e){alert('Lỗi quét: '+e.message);return;}
-  rows=list.map(u=>({key:u.key,vi:u.vi,kinds:[...u.kinds],dyn:u.dyn,n:u.n,skip:false,en:'',zh:'',reuse:false,tries:0}));
-  byKey={};rows.forEach(r=>byKey[r.key]=r);
-  applyOld();renderTable();
-  log('Đã quét: '+rows.length+' chuỗi tiếng Việt (HTML '+rows.filter(r=>r.kinds.includes('html')).length+', JS '+rows.filter(r=>r.kinds.includes('js')).length+', thuộc tính '+rows.filter(r=>r.kinds.includes('attr')).length+', có biến động '+rows.filter(r=>r.dyn).length+')','ok');
-}
-function applyOld(){
-  let n=0;
-  for(const r of rows){const o=oldMap[r.key];if(o&&o.en&&o.zh&&tokSame(r.vi,o.en)&&tokSame(r.vi,o.zh)){r.en=o.en;r.zh=o.zh;r.reuse=true;n++;}}
-  const removed=Object.keys(oldMap).filter(k=>!byKey[k]).length;
-  if(Object.keys(oldMap).length)log('Dùng lại '+n+' bản dịch cũ; '+removed+' khoá cũ không còn trong file (sẽ bị bỏ khi xuất).','info');
-}
-$('fileSrc').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{$('srcText').value=rd.result;doScan();};rd.readAsText(f,'utf-8');});
-$('fileOld').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const j=JSON.parse(rd.result);oldMap={};for(const k in (j.vi||{}))oldMap[k]={en:(j.en||{})[k],zh:(j.zh||{})[k]};log('Đã nạp translations cũ: '+Object.keys(oldMap).length+' khoá','ok');if(rows.length){rows.forEach(r=>{if(r.reuse){r.en='';r.zh='';r.reuse=false;}});applyOld();renderTable();}}catch(err){alert('File JSON không hợp lệ');}};rd.readAsText(f,'utf-8');});
+// Lưu cấu hình
+['wUrl', 'wTok', 'sBudget', 'sReserve', 'sExtra'].forEach(id => {
+  const v = localStorage.getItem('tr_' + id);
+  if (v !== null) $(id).value = v;
+  $(id).addEventListener('change', () => localStorage.setItem('tr_' + id, $(id).value));
+});
 
-/* ---------- BẢNG ---------- */
-const H=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function renderTable(){
-  $('tb').innerHTML=rows.map(r=>`<tr data-k="${r.key}"><td><input type="checkbox" data-f="skip" ${r.skip?'checked':''} title="Bỏ qua"></td><td class="kd">${r.kinds.map(k=>'<span class="b b-'+k+'">'+k.toUpperCase()+'</span>').join('')}${r.dyn?'<span class="b b-dyn">ĐỘNG</span>':''}</td><td class="vi">${H(r.vi)}</td><td><textarea data-f="en">${H(r.en)}</textarea></td><td><textarea data-f="zh">${H(r.zh)}</textarea></td><td class="st"></td></tr>`).join('');
-  rows.forEach(paintRow);stats();filterRows();
-}
-function paintRow(r){
-  const tr=$('tb').querySelector('tr[data-k="'+r.key+'"]');if(!tr)return;
-  const s=stateOf(r);tr.dataset.s=s;
-  const tas=tr.querySelectorAll('textarea');if(tas[0]!==document.activeElement)tas[0].value=r.en;if(tas[1]!==document.activeElement)tas[1].value=r.zh;
-  tr.querySelector('.st').innerHTML='<span class="b s-'+s+'">'+({skip:'BỎ QUA',todo:'CHƯA DỊCH',warn:'LỖI MARKER',reuse:'DÙNG LẠI',ok:'OK'})[s]+'</span>';
-}
-$('tb').addEventListener('input',e=>{const t=e.target;if(t.dataset.f!=='en'&&t.dataset.f!=='zh')return;const r=byKey[t.closest('tr').dataset.k];r[t.dataset.f]=t.value;r.reuse=false;paintRow(r);stats();});
-$('tb').addEventListener('change',e=>{const t=e.target;if(t.dataset.f!=='skip')return;const r=byKey[t.closest('tr').dataset.k];r.skip=t.checked;paintRow(r);stats();});
-function stats(){
-  const c={};rows.forEach(r=>{const s=stateOf(r);c[s]=(c[s]||0)+1;});
-  $('stats').textContent='Tổng '+rows.length+' | OK '+(c.ok||0)+' | Dùng lại '+(c.reuse||0)+' | Chưa dịch '+(c.todo||0)+' | Lỗi marker '+(c.warn||0)+' | Bỏ qua '+(c.skip||0);
-}
-function filterRows(){
-  const q=$('fSearch').value.toLowerCase(),f=$('fState').value;
-  $('tb').querySelectorAll('tr').forEach(tr=>{const r=byKey[tr.dataset.k];const okS=!f||tr.dataset.s===f;const okQ=!q||r.vi.toLowerCase().includes(q)||r.en.toLowerCase().includes(q);tr.style.display=okS&&okQ?'':'none';});
-}
-$('fSearch').addEventListener('input',filterRows);$('fState').addEventListener('change',filterRows);
-
-/* ---------- XUẤT ---------- */
-function dl(name,obj){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:'application/json'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);}
-function exportSource(){
-  const act=rows.filter(r=>!r.skip);if(!act.length){alert('Chưa có dữ liệu');return;}
-  const strings={};act.forEach(r=>strings[r.key]=r.vi);
-  dl('translations_source_vi.json',{version:new Date().toISOString(),engine:1,count:act.length,strings});
-  log('Đã xuất translations_source_vi.json ('+act.length+' chuỗi)','ok');
-}
-function exportTrans(){
-  const ok=rows.filter(r=>!r.skip&&valid(r)),bad=rows.filter(r=>!r.skip&&!valid(r));
-  if(!ok.length){alert('Chưa có bản dịch hợp lệ');return;}
-  if(bad.length&&!confirm(bad.length+' chuỗi chưa dịch/lỗi marker sẽ KHÔNG được xuất (web sẽ hiện tiếng Việt cho chuỗi đó). Vẫn xuất?'))return;
-  const vi={},en={},zh={};ok.forEach(r=>{vi[r.key]=r.vi;en[r.key]=r.en;zh[r.key]=r.zh;});
-  dl('translations.json',{version:new Date().toISOString(),engine:1,vi,en,zh});
-  log('Đã xuất translations.json ('+ok.length+' chuỗi × 3 ngôn ngữ). Dán nội dung file vào KV key "translations".','ok');
+/* TAB SWITCHER */
+function switchTab(group, type) {
+  if (group === 'src') {
+    $('srcTabUpload').style.display = type === 'upload' ? 'flex' : 'none';
+    $('srcTabPaste').style.display = type === 'paste' ? 'block' : 'none';
+  } else if (group === 'old') {
+    $('oldTabUpload').style.display = type === 'upload' ? 'flex' : 'none';
+    $('oldTabPaste').style.display = type === 'paste' ? 'block' : 'none';
+  }
+  const btns = event.target.parentElement.querySelectorAll('.tab-btn');
+  btns.forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
 }
 
-/* ---------- ƯỚC LƯỢNG TOKEN ---------- */
-const tokSys=Math.ceil(SYS.length/3.2)+15;
-const estIn=r=>Math.ceil(r.vi.length/2)+8;
-const estOut=r=>Math.ceil(14+0.8*r.vi.length+8*((r.vi.match(/\[\[\d+\]\]|\{\d+\}/g)||[]).length));
-function plan(batch,extra,boost){
-  const ids={},o={};batch.forEach((r,i)=>{ids[i+1]=r;o[i+1]=r.vi;});
-  const user=JSON.stringify(o);
-  const pin=tokSys+Math.ceil(user.length/2)+10;
-  let maxTok=Math.ceil(batch.reduce((s,r)=>s+estOut(r),0)*1.35*boost)+extra+50;
-  maxTok=Math.min(Math.max(maxTok,300),6000);
-  return{ids,user,pin,maxTok,reserve:pin+maxTok};
+/* LOGGING */
+function log(msg, cls) {
+  const d = document.createElement('div');
+  d.className = cls || '';
+  d.textContent = '[' + (running ? fmt(Date.now() - runStart) : clock(Date.now())) + '] ' + msg;
+  const b = $('log');
+  b.appendChild(d);
+  b.scrollTop = b.scrollHeight;
 }
-function pack(queue,c){
-  const batch=[];
-  while(queue.length){
-    const t=queue[0];
-    const p=plan([...batch,t],c.extra,1+0.4*Math.max(0,...[...batch,t].map(r=>r.tries)));
-    if(batch.length&&p.reserve>c.reserve)break;
+
+setInterval(() => {
+  const c = cfg(), now = Date.now();
+  $('tClock').textContent = running ? fmt(now - runStart) : (lastRun ? fmt(lastRun) : '00:00');
+  const used = ledger.filter(e => e.t > now - 60000).reduce((s, e) => s + e.tokens, 0);
+  $('tTok').textContent = 'Token/phút: ' + used + '/' + c.budget;
+  $('tDay').textContent = 'Hôm nay: ~' + dailyUsed() + '/' + DAILY;
+  $('tLive').textContent = liveMsg;
+}, 250);
+
+/* SCAN SOURCE */
+function doScan() {
+  const txt = $('srcText').value.trim();
+  if (!txt) { alert('Chưa có nội dung index.html! Hãy tải file hoặc dán mã HTML.'); return; }
+  let list;
+  try { list = scanSource(txt); } catch (e) { alert('Lỗi quét: ' + e.message); return; }
+  rows = list.map(u => ({ key: u.key, vi: u.vi, kinds: [...u.kinds], dyn: u.dyn, n: u.n, skip: false, en: '', zh: '', reuse: false, tries: 0 }));
+  byKey = {}; rows.forEach(r => byKey[r.key] = r);
+  applyOld();
+  renderTable();
+  log('Đã quét: ' + rows.length + ' chuỗi tiếng Việt (HTML ' + rows.filter(r => r.kinds.includes('html')).length + ', JS ' + rows.filter(r => r.kinds.includes('js')).length + ', thuộc tính ' + rows.filter(r => r.kinds.includes('attr')).length + ', có biến động ' + rows.filter(r => r.dyn).length + ')', 'ok');
+}
+
+/* XỬ LÝ NẠP BẢN DỊCH CŨ */
+function applyOld() {
+  let n = 0;
+  for (const r of rows) {
+    const o = oldMap[r.key];
+    if (o && o.en && o.zh && tokSame(r.vi, o.en) && tokSame(r.vi, o.zh)) {
+      r.en = o.en; r.zh = o.zh; r.reuse = true; n++;
+    }
+  }
+  const removed = Object.keys(oldMap).filter(k => !byKey[k]).length;
+  if (Object.keys(oldMap).length) {
+    log('Dùng lại ' + n + ' bản dịch cũ; ' + removed + ' khoá cũ không còn trong file mới.', 'info');
+  }
+}
+
+function parseOldJson(raw) {
+  try {
+    const j = JSON.parse(raw);
+    oldMap = {};
+    for (const k in (j.vi || {})) {
+      oldMap[k] = { en: (j.en || {})[k], zh: (j.zh || {})[k] };
+    }
+    const count = Object.keys(oldMap).length;
+    $('oldStatus').textContent = '✔ Đã nạp ' + count + ' khoá cũ';
+    $('oldStatus').style.color = 'var(--success)';
+    log('Đã nạp translations.json cũ: ' + count + ' khoá', 'ok');
+    if (rows.length) {
+      rows.forEach(r => { if (r.reuse) { r.en = ''; r.zh = ''; r.reuse = false; } });
+      applyOld();
+      renderTable();
+    }
+  } catch (err) {
+    alert('Nội dung JSON không hợp lệ! Vui lòng kiểm tra lại.');
+  }
+}
+
+function applyPastedOldJson() {
+  const val = $('oldJsonText').value.trim();
+  if (!val) { alert('Vui lòng dán nội dung JSON vào ô!'); return; }
+  parseOldJson(val);
+}
+
+function clearOldJson() {
+  oldMap = {};
+  $('oldJsonText').value = '';
+  $('oldStatus').textContent = 'Chưa nạp file cũ';
+  $('oldStatus').style.color = 'var(--tx-mut)';
+  rows.forEach(r => { if (r.reuse) { r.en = ''; r.zh = ''; r.reuse = false; } });
+  renderTable();
+  log('Đã xoá bộ nhớ translations cũ.', 'info');
+}
+
+$('fileSrc').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => { $('srcText').value = rd.result; doScan(); };
+  rd.readAsText(f, 'utf-8');
+});
+
+$('fileOld').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => parseOldJson(rd.result);
+  rd.readAsText(f, 'utf-8');
+});
+
+/* TABLE RENDERING */
+const H = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function renderTable() {
+  if (!rows.length) {
+    $('tb').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--tx-mut);">Không tìm thấy chuỗi nào.</td></tr>';
+    stats(); return;
+  }
+  $('tb').innerHTML = rows.map(r => `
+    <tr data-k="${r.key}">
+      <td style="text-align:center;"><input type="checkbox" data-f="skip" ${r.skip ? 'checked' : ''} title="Bỏ qua"></td>
+      <td class="kd">
+        ${r.kinds.map(k => '<span class="b b-' + k + '">' + k.toUpperCase() + '</span>').join('')}
+        ${r.dyn ? '<span class="b b-dyn">ĐỘNG</span>' : ''}
+      </td>
+      <td class="vi">${H(r.vi)}</td>
+      <td><textarea data-f="en" placeholder="Bản dịch tiếng Anh...">${H(r.en)}</textarea></td>
+      <td><textarea data-f="zh" placeholder="Bản dịch tiếng Trung...">${H(r.zh)}</textarea></td>
+      <td class="st"></td>
+    </tr>
+  `).join('');
+  rows.forEach(paintRow);
+  stats();
+  filterRows();
+}
+
+function paintRow(r) {
+  const tr = $('tb').querySelector('tr[data-k="' + r.key + '"]');
+  if (!tr) return;
+  const s = stateOf(r);
+  tr.dataset.s = s;
+  const tas = tr.querySelectorAll('textarea');
+  if (tas[0] !== document.activeElement) tas[0].value = r.en;
+  if (tas[1] !== document.activeElement) tas[1].value = r.zh;
+  const labelMap = { skip: 'BỎ QUA', todo: 'CHƯA DỊCH', warn: 'LỖI MARKER', reuse: 'DÙNG LẠI', ok: 'HOÀN TẤT' };
+  tr.querySelector('.st').innerHTML = '<span class="b s-' + s + '">' + labelMap[s] + '</span>';
+}
+
+$('tb').addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.f !== 'en' && t.dataset.f !== 'zh') return;
+  const r = byKey[t.closest('tr').dataset.k];
+  r[t.dataset.f] = t.value;
+  r.reuse = false;
+  paintRow(r);
+  stats();
+});
+
+$('tb').addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.f !== 'skip') return;
+  const r = byKey[t.closest('tr').dataset.k];
+  r.skip = t.checked;
+  paintRow(r);
+  stats();
+});
+
+function stats() {
+  const c = {};
+  rows.forEach(r => { const s = stateOf(r); c[s] = (c[s] || 0) + 1; });
+  $('stats').innerHTML = `
+    <span class="stat-tag">Tổng: <b>${rows.length}</b></span>
+    <span class="stat-tag" style="color:var(--success)">Đã xong: <b>${c.ok || 0}</b></span>
+    <span class="stat-tag" style="color:#0369a1">Dùng lại: <b>${c.reuse || 0}</b></span>
+    <span class="stat-tag" style="color:var(--tx-sec)">Chưa dịch: <b>${c.todo || 0}</b></span>
+    ${c.warn ? `<span class="stat-tag" style="color:var(--warning)">Lỗi marker: <b>${c.warn}</b></span>` : ''}
+    ${c.skip ? `<span class="stat-tag" style="color:var(--tx-mut)">Bỏ qua: <b>${c.skip}</b></span>` : ''}
+  `;
+}
+
+function filterRows() {
+  const q = $('fSearch').value.toLowerCase(), f = $('fState').value;
+  $('tb').querySelectorAll('tr').forEach(tr => {
+    if (!tr.dataset.k) return;
+    const r = byKey[tr.dataset.k];
+    const okS = !f || tr.dataset.s === f;
+    const okQ = !q || r.vi.toLowerCase().includes(q) || r.en.toLowerCase().includes(q);
+    tr.style.display = okS && okQ ? '' : 'none';
+  });
+}
+$('fSearch').addEventListener('input', filterRows);
+$('fState').addEventListener('change', filterRows);
+
+/* EXPORT */
+function dl(name, obj) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }));
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+function exportSource() {
+  const act = rows.filter(r => !r.skip);
+  if (!act.length) { alert('Chưa có dữ liệu để xuất!'); return; }
+  const strings = {};
+  act.forEach(r => strings[r.key] = r.vi);
+  dl('translations_source_vi.json', { version: new Date().toISOString(), count: act.length, strings });
+  log('Đã xuất translations_source_vi.json (' + act.length + ' chuỗi)', 'ok');
+}
+
+function exportTrans() {
+  const ok = rows.filter(r => !r.skip && valid(r)), bad = rows.filter(r => !r.skip && !valid(r));
+  if (!ok.length) { alert('Chưa có bản dịch nào hợp lệ để xuất!'); return; }
+  if (bad.length && !confirm(bad.length + ' chuỗi chưa dịch hoặc bị lỗi marker sẽ KHÔNG được đưa vào file. Bạn có chắc muốn xuất?')) return;
+  const vi = {}, en = {}, zh = {};
+  ok.forEach(r => { vi[r.key] = r.vi; en[r.key] = r.en; zh[r.key] = r.zh; });
+  dl('translations.json', { version: new Date().toISOString(), engine: 1, vi, en, zh });
+  log('Đã xuất translations.json thành công (' + ok.length + ' chuỗi × 3 ngôn ngữ).', 'ok');
+}
+
+/* TOKEN ESTIMATION & BATCHING (ĐÃ FIX LỖI HTTP 400) */
+const tokSys = Math.ceil(SYS.length / 3.2) + 20;
+const estIn = r => Math.ceil(r.vi.length / 2) + 12;
+const estOut = r => Math.ceil(24 + 1.2 * r.vi.length + 12 * ((r.vi.match(/\[\[\d+\]\]|\{\d+\}/g) || []).length));
+
+function plan(batch, extra, boost) {
+  const ids = {}, o = {};
+  batch.forEach((r, i) => { ids[i + 1] = r; o[i + 1] = r.vi; });
+  
+  // Định dạng rõ ràng để mô hình trả về JSON object chuẩn
+  const user = JSON.stringify(o, null, 1);
+  const pin = tokSys + Math.ceil(user.length / 2.5) + 30;
+  
+  // FIX: Sàn maxTok tối thiểu 1500 (không để 300) để không bao giờ bị cắt cụt JSON
+  let maxTok = Math.ceil(batch.reduce((s, r) => s + estOut(r), 0) * 1.8 * boost) + extra + 300;
+  maxTok = Math.min(Math.max(maxTok, 1500), 6000);
+  
+  return { ids, user, pin, maxTok, reserve: pin + maxTok };
+}
+
+function pack(queue, c) {
+  const batch = [];
+  while (queue.length) {
+    const t = queue[0];
+    const p = plan([...batch, t], c.extra, 1 + 0.4 * Math.max(0, ...[...batch, t].map(r => r.tries)));
+    if (batch.length && p.reserve > c.reserve) break;
     batch.push(queue.shift());
-    if(p.reserve>c.reserve)break;
+    if (p.reserve > c.reserve) break;
   }
   return batch;
 }
 
-/* ---------- RATE LIMIT ---------- */
-async function sleepUntil(ts,label){while(!stopFlag&&Date.now()<ts){liveMsg='⏳ '+label+' — còn '+Math.ceil((ts-Date.now())/1000)+'s';await sleep(250);}liveMsg='';}
-async function waitBudget(need,c){
-  need=Math.min(need,c.budget);
-  while(!stopFlag){
-    const now=Date.now();ledger=ledger.filter(e=>e.t>now-60000);
-    const used=ledger.reduce((s,e)=>s+e.tokens,0);
-    if(used+need<=c.budget)return;
-    let acc=used,wake=now+1000;
-    for(const e of ledger.slice().sort((a,b)=>a.t-b.t)){acc-=e.tokens;wake=e.t+60000;if(acc+need<=c.budget)break;}
-    log('Đã dùng '+used+'/'+c.budget+' token trong 60s qua, batch tới cần ~'+need+' → chờ refill đến '+clock(wake)+' (~'+Math.ceil((wake-now)/1000)+'s)','warn');
-    await sleepUntil(wake+1500,'chờ refill token');
+/* RATE LIMIT & BUDGET WAIT */
+async function sleepUntil(ts, label) {
+  while (!stopFlag && Date.now() < ts) {
+    liveMsg = '⏳ ' + label + ' — còn ' + Math.ceil((ts - Date.now()) / 1000) + 's';
+    await sleep(250);
+  }
+  liveMsg = '';
+}
+
+async function waitBudget(need, c) {
+  need = Math.min(need, c.budget);
+  while (!stopFlag) {
+    const now = Date.now();
+    ledger = ledger.filter(e => e.t > now - 60000);
+    const used = ledger.reduce((s, e) => s + e.tokens, 0);
+    if (used + need <= c.budget) return;
+    let acc = used, wake = now + 1000;
+    for (const e of ledger.slice().sort((a, b) => a.t - b.t)) {
+      acc -= e.tokens; wake = e.t + 60000;
+      if (acc + need <= c.budget) break;
+    }
+    log('Đã dùng ' + used + '/' + c.budget + ' token trong 60s qua. Chờ nạp token tới ' + clock(wake) + ' (~' + Math.ceil((wake - now) / 1000) + 's)', 'warn');
+    await sleepUntil(wake + 1500, 'chờ refill token');
   }
 }
 
-/* ---------- GỌI WORKER ---------- */
-async function callChat(p,c){
-  ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),90000);
-  try{
-    const r=await fetch(c.url+'/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json','X-Token':c.token},body:JSON.stringify({system:SYS,user:p.user,max_tokens:p.maxTok})});
-    let j=null;try{j=await r.json();}catch(e){}
-    if(!j)return{ok:false,status:r.status,error:'Worker trả về không phải JSON (HTTP '+r.status+')'};
+/* CALL WORKER */
+async function callChat(p, c) {
+  ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 90000);
+  try {
+    const r = await fetch(c.url + '/chat', {
+      method: 'POST',
+      signal: ctrl.signal,
+      headers: { 'Content-Type': 'application/json', 'X-Token': c.token },
+      body: JSON.stringify({ system: SYS, user: p.user, max_tokens: p.maxTok })
+    });
+    let j = null;
+    try { j = await r.json(); } catch (e) {}
+    if (!j) return { ok: false, status: r.status, error: 'Worker trả về không phải JSON (HTTP ' + r.status + ')' };
     return j;
-  }finally{clearTimeout(to);ctrl=null;}
+  } finally {
+    clearTimeout(to);
+    ctrl = null;
+  }
 }
-function parseModel(content){
-  let s=String(content||'').trim().replace(/^```(?:json)?\s*|\s*```$/g,'');
-  if(!s)return null;
-  let j;try{j=JSON.parse(s);}catch(e){const a=s.indexOf('{'),b=s.lastIndexOf('}');if(a<0||b<=a)return null;try{j=JSON.parse(s.slice(a,b+1));}catch(e2){return null;}}
-  const out={};
-  const put=(id,v)=>{if(v&&typeof v==='object'&&(v.en||v.zh))out[String(id)]={en:String(v.en||'').trim(),zh:String(v.zh||'').trim()};};
-  if(Array.isArray(j)){j.forEach(x=>x&&put(x.id,x));return out;}
-  if(j&&typeof j==='object'){
-    const inner=Object.keys(j).length<=2&&Object.values(j).some(v=>v&&typeof v==='object'&&!('en' in v)&&!('zh' in v))?Object.values(j).find(v=>v&&typeof v==='object'):j;
-    if(Array.isArray(inner))inner.forEach(x=>x&&put(x.id,x));else for(const k in inner)put(k,inner[k]);
+
+function parseModel(content) {
+  let s = String(content || '').trim().replace(/^```(?:json)?\s*|\s*```$/g, '');
+  if (!s) return null;
+  let j;
+  try { j = JSON.parse(s); }
+  catch (e) {
+    const a = s.indexOf('{'), b = s.lastIndexOf('}');
+    if (a < 0 || b <= a) return null;
+    try { j = JSON.parse(s.slice(a, b + 1)); } catch (e2) { return null; }
+  }
+  const out = {};
+  const put = (id, v) => {
+    if (v && typeof v === 'object' && (v.en || v.zh)) {
+      out[String(id)] = { en: String(v.en || '').trim(), zh: String(v.zh || '').trim() };
+    }
+  };
+  if (Array.isArray(j)) { j.forEach(x => x && put(x.id, x)); return out; }
+  if (j && typeof j === 'object') {
+    const inner = Object.keys(j).length <= 2 && Object.values(j).some(v => v && typeof v === 'object' && !('en' in v) && !('zh' in v))
+      ? Object.values(j).find(v => v && typeof v === 'object') : j;
+    if (Array.isArray(inner)) inner.forEach(x => x && put(x.id, x));
+    else for (const k in inner) put(k, inner[k]);
   }
   return out;
 }
 
-/* ---------- CHẠY DỊCH ---------- */
-async function runTranslate(){
-  if(running)return;const c=cfg();
-  if(!c.url){alert('Nhập URL Worker dịch');return;}
-  const todo=rows.filter(r=>!r.skip&&!valid(r));
-  if(!todo.length){log('Không có chuỗi nào cần dịch.','ok');return;}
-  const estTotal=todo.reduce((s,r)=>s+estIn(r)+estOut(r),0)+Math.ceil(todo.length/6)*tokSys;
-  const estMin=Math.max(1,Math.ceil(estTotal/c.budget));
-  if(dailyUsed()+estTotal>DAILY&&!confirm('Ước tính ~'+estTotal+' token, cộng với hôm nay đã dùng ~'+dailyUsed()+' sẽ vượt giới hạn ngày '+DAILY+'. Vẫn chạy?'))return;
-  running=true;stopFlag=false;runStart=Date.now();ledger=[];sessionTok=0;$('btnRun').disabled=true;$('btnStop').disabled=false;
-  log('▶ BẮT ĐẦU: '+todo.length+' chuỗi | ước tính ~'+estTotal+' token | budget '+c.budget+' token/phút → tối thiểu ~'+estMin+' phút | batch ≤ '+c.reserve+' token','ok');
-  const queue=todo.slice();let no=0,net=0,r429=0,done=0,curReserve=c.reserve;
-  while(queue.length&&!stopFlag){
-    const cc={...c,reserve:curReserve},batch=pack(queue,cc);no++;
-    const boost=1+0.4*Math.max(0,...batch.map(r=>r.tries)),p=plan(batch,c.extra,boost);
-    log('Batch #'+no+': chuẩn bị '+batch.length+' chuỗi (~'+p.pin+' token vào + tối đa '+p.maxTok+' token ra = ~'+p.reserve+'), còn '+queue.length+' chuỗi chờ','info');
-    await waitBudget(p.reserve,c);
-    if(stopFlag){queue.unshift(...batch);break;}
-    const entry={t:Date.now(),tokens:p.reserve};ledger.push(entry);
-    log('→ Gửi batch #'+no+' lên Worker/Groq...','info');
+/* MAIN TRANSLATE RUNNER */
+async function runTranslate() {
+  if (running) return;
+  const c = cfg();
+  if (!c.url) { alert('Vui lòng nhập URL Worker của bạn!'); return; }
+  
+  const todo = rows.filter(r => !r.skip && !valid(r));
+  if (!todo.length) { log('Tất cả các chuỗi đều đã có bản dịch hợp lệ.', 'ok'); return; }
+
+  const estTotal = todo.reduce((s, r) => s + estIn(r) + estOut(r), 0) + Math.ceil(todo.length / 6) * tokSys;
+  const estMin = Math.max(1, Math.ceil(estTotal / c.budget));
+  
+  if (dailyUsed() + estTotal > DAILY && !confirm('Ước tính ~' + estTotal + ' token có thể vượt mức dùng hôm nay. Vẫn tiếp tục?')) return;
+
+  running = true; stopFlag = false; runStart = Date.now(); ledger = []; sessionTok = 0;
+  $('btnRun').disabled = true; $('btnStop').disabled = false;
+  
+  log('▶ BẮT ĐẦU: ' + todo.length + ' chuỗi | Dự tính ~' + estTotal + ' token | Budget: ' + c.budget + ' token/phút', 'ok');
+  
+  const queue = todo.slice();
+  let no = 0, net = 0, r429 = 0, done = 0, curReserve = c.reserve;
+
+  while (queue.length && !stopFlag) {
+    const cc = { ...c, reserve: curReserve }, batch = pack(queue, cc);
+    no++;
+    const boost = 1 + 0.4 * Math.max(0, ...batch.map(r => r.tries));
+    const p = plan(batch, c.extra, boost);
+
+    log('Batch #' + no + ': chuẩn bị ' + batch.length + ' chuỗi (~' + p.pin + ' token vào, max ' + p.maxTok + ' ra), còn ' + queue.length + ' chuỗi', 'info');
+    
+    await waitBudget(p.reserve, c);
+    if (stopFlag) { queue.unshift(...batch); break; }
+
+    const entry = { t: Date.now(), tokens: p.reserve };
+    ledger.push(entry);
+
+    log('→ Đang gửi Batch #' + no + ' tới Groq...', 'info');
     let res;
-    try{res=await callChat(p,c);}
-    catch(e){
-      queue.unshift(...batch);net++;
-      log('✖ Lỗi mạng/timeout: '+(e.name==='AbortError'?'quá 90s hoặc đã dừng':e.message)+' (lần '+net+'/4)','err');
-      if(stopFlag)break;if(net>=4){log('Dừng: lỗi mạng liên tục. Kiểm tra URL Worker + CORS.','err');break;}
-      await sleepUntil(Date.now()+5000,'thử lại sau lỗi mạng');continue;
-    }
-    if(res.status===429||/rate.?limit|429/i.test(res.error||'')){
-      queue.unshift(...batch);r429++;entry.tokens=Math.max(entry.tokens,Math.floor(c.budget*0.8));
-      curReserve=Math.max(1200,Math.floor(curReserve*0.75));
-      const w=Math.max(10,Math.ceil(res.retryAfter||20))+2;
-      log('✖ Groq báo 429 (vượt giới hạn): '+(res.error||'').slice(0,160)+' → chờ '+w+'s, giảm batch còn ≤'+curReserve+' token (lần '+r429+'/8)','warn');
-      if(r429>=8){log('Dừng: 429 quá nhiều lần.','err');break;}
-      await sleepUntil(Date.now()+w*1000,'chờ hết giới hạn 429');continue;
-    }
-    if(!res.ok){
-      if(res.status>=500||res.status===0){queue.unshift(...batch);net++;log('✖ Lỗi máy chủ '+res.status+': '+(res.error||'').slice(0,200)+' (lần '+net+'/4)','err');if(net>=4)break;await sleepUntil(Date.now()+5000,'thử lại');continue;}
-      log('✖ DỪNG — lỗi không thể tự thử lại (HTTP '+res.status+'): '+(res.error||'').slice(0,300),'err');queue.unshift(...batch);break;
-    }
-    net=0;
-    const used=res.usage&&res.usage.total_tokens;if(used){entry.tokens=used;sessionTok+=used;addDaily(used);}
-    const parsed=parseModel(res.content);
-    log('← Nhận phản hồi: finish='+(res.finish_reason||'?')+', token thực tế '+(used||'?')+(res.rl&&res.rl.remainingTokens!=null?', Groq còn '+res.rl.remainingTokens+' token/phút':'')+', độ dài nội dung '+String(res.content||'').length+' ký tự'+(res.hasReasoning?' (model có reasoning)':''),'info');
-    if(!parsed||!Object.keys(parsed).length){
-      log('✖ Không đọc được kết quả JSON'+(res.finish_reason==='length'?' — model bị CẮT do hết max_tokens (thường do model reasoning ăn hết token): sẽ tăng dự phòng và thử lại':'')+'. Mẫu: '+String(res.content||'(rỗng)').slice(0,160),'err');
-      batch.forEach(r=>{r.tries++;});
-      const keep=batch.filter(r=>r.tries<3);batch.filter(r=>r.tries>=3).forEach(r=>log('✖ Bỏ cuộc chuỗi: '+r.vi.slice(0,50),'err'));queue.unshift(...keep);
+    try {
+      res = await callChat(p, c);
+    } catch (e) {
+      queue.unshift(...batch); net++;
+      log('✖ Lỗi kết nối: ' + (e.name === 'AbortError' ? 'Quá hạn 90s hoặc đã huỷ' : e.message), 'err');
+      if (stopFlag || net >= 4) break;
+      await sleepUntil(Date.now() + 5000, 'thử lại sau lỗi mạng');
       continue;
     }
-    let ok=0,bad=0;
-    for(const id in p.ids){
-      const r=p.ids[id],t=parsed[id];
-      if(t&&t.en&&t.zh&&tokSame(r.vi,t.en)&&tokSame(r.vi,t.zh)){r.en=t.en;r.zh=t.zh;r.reuse=false;ok++;done++;paintRow(r);}
-      else{
-        r.tries++;bad++;
-        if(t&&t.en&&t.zh){r.en=t.en;r.zh=t.zh;paintRow(r);}
-        if(r.tries<3)queue.push(r);else log('✖ Bỏ cuộc (marker/ID sai 3 lần) → sửa tay: '+r.vi.slice(0,60),'err');
+
+    if (res.status === 429 || /rate.?limit|429/i.test(res.error || '')) {
+      queue.unshift(...batch); r429++;
+      entry.tokens = Math.max(entry.tokens, Math.floor(c.budget * 0.8));
+      curReserve = Math.max(1200, Math.floor(curReserve * 0.75));
+      const w = Math.max(10, Math.ceil(res.retryAfter || 20)) + 2;
+      log('✖ Chạm giới hạn Groq 429 → Chờ ' + w + 's (lần ' + r429 + '/8)', 'warn');
+      if (r429 >= 8) { log('Dừng: Bị giới hạn 429 liên tục.', 'err'); break; }
+      await sleepUntil(Date.now() + w * 1000, 'chờ hết 429');
+      continue;
+    }
+
+    if (!res.ok) {
+      if (res.status >= 500 || res.status === 0) {
+        queue.unshift(...batch); net++;
+        log('✖ Lỗi máy chủ ' + res.status + ': ' + (res.error || '').slice(0, 200), 'err');
+        if (net >= 4) break;
+        await sleepUntil(Date.now() + 5000, 'thử lại');
+        continue;
+      }
+      log('✖ DỪNG — lỗi từ chối yêu cầu (HTTP ' + res.status + '): ' + (res.error || '').slice(0, 300), 'err');
+      queue.unshift(...batch);
+      break;
+    }
+
+    net = 0;
+    const used = res.usage && res.usage.total_tokens;
+    if (used) { entry.tokens = used; sessionTok += used; addDaily(used); }
+
+    const parsed = parseModel(res.content);
+    log('← Nhận kết quả: Finish=' + (res.finish_reason || 'stop') + ' | Token dùng: ' + (used || '?'), 'info');
+
+    if (!parsed || !Object.keys(parsed).length) {
+      log('✖ Lỗi phân tích JSON kết quả' + (res.finish_reason === 'length' ? ' (Do tràn token)' : '') + ': ' + String(res.content || '').slice(0, 160), 'err');
+      batch.forEach(r => { r.tries++; });
+      const keep = batch.filter(r => r.tries < 3);
+      queue.unshift(...keep);
+      continue;
+    }
+
+    let ok = 0, bad = 0;
+    for (const id in p.ids) {
+      const r = p.ids[id], t = parsed[id];
+      if (t && t.en && t.zh && tokSame(r.vi, t.en) && tokSame(r.vi, t.zh)) {
+        r.en = t.en; r.zh = t.zh; r.reuse = false; ok++; done++;
+        paintRow(r);
+      } else {
+        r.tries++; bad++;
+        if (t && t.en && t.zh) { r.en = t.en; r.zh = t.zh; paintRow(r); }
+        if (r.tries < 3) queue.push(r);
+        else log('✖ Bỏ cuộc chuỗi (sai placeholder 3 lần): ' + r.vi.slice(0, 50), 'err');
       }
     }
+
     stats();
-    log('✔ Batch #'+no+': '+ok+' OK, '+bad+' lỗi/thiếu'+(bad?' (đưa vào hàng chờ dịch lại)':'')+' | tổng đã dịch phiên này '+done+'/'+todo.length+' | token phiên ~'+sessionTok,ok?'ok':'warn');
-    const left=todo.filter(r=>!valid(r)&&r.tries<3).length;
-    $('tState').textContent='Đang dịch: '+(todo.length-left)+'/'+todo.length;$('tBar').style.width=Math.round((todo.length-left)/todo.length*100)+'%';
+    log('✔ Batch #' + no + ': ' + ok + ' thành công, ' + bad + ' cần xem lại | Đã dịch: ' + done + '/' + todo.length, ok ? 'ok' : 'warn');
+
+    const left = todo.filter(r => !valid(r) && r.tries < 3).length;
+    $('tState').textContent = 'Đang dịch: ' + (todo.length - left) + '/' + todo.length;
+    $('tBar').style.width = Math.round((todo.length - left) / todo.length * 100) + '%';
   }
-  lastRun=Date.now()-runStart;running=false;$('btnRun').disabled=false;$('btnStop').disabled=true;liveMsg='';
-  const remain=rows.filter(r=>!r.skip&&!valid(r)).length;
-  $('tState').textContent=stopFlag?'Đã dừng':remain?'Xong (còn '+remain+' chưa dịch)':'Hoàn tất ✔';
-  log((stopFlag?'■ ĐÃ DỪNG':'■ KẾT THÚC')+' sau '+fmt(lastRun)+' | dịch thành công '+done+' | còn '+remain+' chưa dịch/lỗi | token phiên ~'+sessionTok,remain?'warn':'ok');
+
+  lastRun = Date.now() - runStart;
+  running = false;
+  $('btnRun').disabled = false; $('btnStop').disabled = true; liveMsg = '';
+  
+  const remain = rows.filter(r => !r.skip && !valid(r)).length;
+  $('tState').textContent = stopFlag ? 'Đã dừng' : remain ? ('Còn ' + remain + ' chuỗi') : 'Hoàn tất ✔';
+  log((stopFlag ? '■ ĐÃ DỪNG' : '■ HOÀN TẤT') + ' sau ' + fmt(lastRun) + ' | Đã dịch thành công ' + done + ' chuỗi.', remain ? 'warn' : 'ok');
   stats();
 }
-function stopRun(){stopFlag=true;if(ctrl)ctrl.abort();log('Yêu cầu dừng...','warn');}
-async function testWorker(){
-  const c=cfg();if(!c.url){alert('Nhập URL Worker');return;}
-  try{const r=await fetch(c.url+'/');const j=await r.json();log('Worker OK: model='+j.model+', có GROQ_API_KEY='+j.hasKey+', cần token='+j.needToken,j.hasKey?'ok':'err');}
-  catch(e){log('Không gọi được Worker: '+e.message,'err');}
-}
-function copyLog(){navigator.clipboard.writeText($('log').innerText);}
 
-</script></body></html>
+function stopRun() {
+  stopFlag = true;
+  if (ctrl) ctrl.abort();
+  log('Đã gửi tín hiệu dừng...', 'warn');
+}
+
+async function testWorker() {
+  const c = cfg();
+  if (!c.url) { alert('Vui lòng nhập URL Worker'); return; }
+  try {
+    const r = await fetch(c.url + '/');
+    const j = await r.json();
+    log('Worker hoạt động tốt: Model=' + j.model + ', Đã có API KEY=' + j.hasKey, j.hasKey ? 'ok' : 'err');
+  } catch (e) {
+    log('Không kết nối được tới Worker: ' + e.message, 'err');
+  }
+}
+
+function copyLog() {
+  navigator.clipboard.writeText($('log').innerText);
+  alert('Đã sao chép toàn bộ nhật ký vào clipboard!');
+}
+</script>
+</body>
+</html>
